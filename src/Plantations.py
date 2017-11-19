@@ -10,8 +10,12 @@ class Quarry(IslandTile):
 
 class PlantationTile(IslandTile):
 
-    pass
+    def __eq__(self, other):
 
+        if type(self) == type(other):
+            return True
+        else:
+            return False
 
 class Coffee(PlantationTile):
 

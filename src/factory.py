@@ -2,6 +2,7 @@ import Roles as roles
 import Plantations as plant_types
 import Buildings as building_types
 import Goods as good_types
+import Utils as ut
 
 class Game:
 
@@ -18,21 +19,129 @@ class Game:
         self.available_buildings = None
         self.available_goods = None
 
+        # Always first player have index
+        self.govenor_index = 0
+
+    def play(self):
+
+        # Round number
+        i = 1
+        # Give tiles
+        self.prepare_pre_start()
+        game_over  = False
+
+        # Governor cycle
+        while not game_over:
+
+            self.play_govenor_cycle()
+            game_over = self.is_game_over()
+
+        print('Game is over')
+
+    def is_game_over(self):
+
+
+        conditions = [
+            not self.colonist_supply, # No more colonist
+            not self.victory_points # No more victory points
+        ]
+
+        conditions.extend(
+            [p.is_city_full() for p in self.players ]
+        )
+
+        return any(conditions)
+
+    def play_govenor_cycle(self):
+
+        self.players[self.govenor_index].choose_role()
+
+
+    def prepare_pre_start(self):
+
+        # Do indigo
+        indigo = ut.iterate_and_remove(
+            self.available_island_tiles,
+            plant_types.Indigo()
+        )
+
+        # Take indigo and give to first player
+        self.players[0].recieve_island_tile(next(indigo))
+
+        # Take indigo and give to second player
+        self.players[1].recieve_island_tile(next(indigo))
+
+        N_players = len(self.players)
+
+        if N_players == 5:
+            # Third player gets indigo
+            self.players[2].recieve_island_tile(next(indigo))
+
+        # now the available island tiles should be reduced
+        # Do corn
+        corn = ut.iterate_and_remove(
+            self.available_island_tiles,
+            plant_types.Corn()
+        )
+
+        if N_players == 3:
+            self.players[2].recieve_island_tile(next(corn))
+        elif N_players == 4:
+            self.players[2].recieve_island_tile(next(corn))
+            self.players[3].recieve_island_tile(next(corn))
+        else:
+            # five players
+            self.players[3].recieve_island_tile(next(corn))
+            self.players[4].recieve_island_tile(next(corn))
+
 
 class Colonist:
     def __init__(self):
         pass
 
 class Player:
-    def __init__(self):
+    def __init__(self, name):
         self.doublons = 0
         self.board = None
+        self.name = name
+
+    def recieve_island_tile(self, tile):
+        self.board.set_tile(tile)
+
+    def is_city_full(self):
+        return self.board.is_city_full()
+
+
 
 class Board:
 
     def __init__(self):
+        self.island_spaces = []
+        self.city_spaces = []
+        self.max_space = 12
 
-        pass
+    def set_island_tile(self, tile):
+        # Each tile has space 1
+        if len(self.island_spaces) <= 12:
+            self.island_spaces.append(tile)
+        else:
+            raise
+
+    def set_city_tile(self, tile):
+        # Default 12 space
+        available_space = self.get_available_space()
+
+        if tile.space <= available_space:
+            self.city_spaces.append(tile)
+        else:
+            raise
+
+    def get_available_space(self):
+        return self.max_space - sum([t.space for t in self.city_spaces])
+
+    def is_city_full(self):
+        # Assume never below zero
+        return self.get_available_space() == 0
 
 class VictoryPoint:
 
@@ -67,13 +176,17 @@ def create_role_cards(N_players):
 
     return standard_cards
 
-def create_players(N_players):
+def create_players(player_names):
+    '''
+    player_names: list of strings
+    '''
 
+    N_players = len(player_names)
     players = []
 
     N_start_doublons = N_players - 1
     for i in range(N_players):
-        p = Player()
+        p = Player(player_names(i))
         p.doublons = N_start_doublons
 
         # Add board empty board
@@ -194,16 +307,18 @@ def create_goods():
 
     return goods
 
-def prepare_game(N_players):
+def prepare_game(players):
 
     if N_players > 5:
         raise ValueError('Wrong number of players.')
 
     g = Game()
 
+    g.players = players
+    N_players = len(players)
+
     g.N_plantation_tiles_show = N_players + 1
     g.roles = create_role_cards(N_players)
-    g.players = create_players(N_players)
     g.cargo_ships = create_cargo_ships(N_players)
     g.victory_points = create_victory_points(N_players)
     g.colonist_supply = create_colonists(N_players)
