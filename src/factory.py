@@ -22,18 +22,30 @@ class Game:
         # Always first player have index
         self.govenor_index = 0
 
+
+
+    def get_player_orders(self, N_players):
+
+        # player_order
+        a = range(N_players)
+
+        return cycle([a[i:] + a[:i] for i in range(len(a))])
+
     def play(self):
 
         # Round number
         i = 1
         # Give tiles
         self.prepare_pre_start()
+        # Prepare other stuff
+        players_orders = self.get_player_orders(len(self.players))
+
         game_over  = False
 
         # Governor cycle
         while not game_over:
 
-            self.play_govenor_cycle()
+            self.play_govenor_cycle(players_orders.next())
             game_over = self.is_game_over()
 
         print('Game is over')
@@ -52,10 +64,22 @@ class Game:
 
         return any(conditions)
 
-    def play_govenor_cycle(self):
+    def play_govenor_cycle(self, order):
+        # The Governor begins the round by choosing a role.
+        # Then the other players can choose a role
+        for player_index in order:
+            # Choose cards
+            # And give
+            (rem, chosen) = self.players[player_index].choose_role(self.roles)
+            # Play card
+            pass
 
-        self.players[self.govenor_index].choose_role()
+        # End of Governor cycle
+        # Give back cards
 
+    def play_role(self, role):
+
+        pass
 
     def prepare_pre_start(self):
 
@@ -111,6 +135,10 @@ class Player:
     def is_city_full(self):
         return self.board.is_city_full()
 
+    def choose_role(self, roles):
+        # Choose role and give back.
+        return (rem, chosen)
+        pass
 
 
 class Board:
