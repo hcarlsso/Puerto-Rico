@@ -47,7 +47,7 @@ class Game:
         # Governor cycle
         while not game_over:
 
-            self.play_govenor_cycle(players_orders.next())
+            self.play_govenor_cycle(next(players_orders))
             game_over = self.is_game_over()
 
         print('Game is over')
@@ -126,19 +126,25 @@ class Colonist:
         pass
 
 class Player:
-    def __init__(self, name):
+    def __init__(self, name, view, controller):
         self.doublons = 0
         self.board = None
         self.name = name
+        self.view = view
+        self.controller = controller
 
     def recieve_island_tile(self, tile):
-        self.board.set_tile(tile)
+        self.board.set_island_tile(tile)
 
     def is_city_full(self):
         return self.board.is_city_full()
 
     def choose_role(self, roles):
         # Choose role and give back.
+        self.view.display_role_options(name, roles)
+
+        index = self.controller.select_role()
+
         return (rem, chosen)
         pass
 
@@ -216,7 +222,7 @@ def create_players(player_names):
 
     N_start_doublons = N_players - 1
     for i in range(N_players):
-        p = Player(player_names(i))
+        p = Player(player_names[i])
         p.doublons = N_start_doublons
 
         # Add board empty board

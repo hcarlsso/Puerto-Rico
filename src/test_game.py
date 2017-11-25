@@ -27,5 +27,10 @@ class TestGame(unittest.TestCase):
         self.assertListEqual(next(order), [2,0,1])
         self.assertListEqual(next(order), [0,1,2])
 
+    def test_create_players(self):
+
+        players = f.create_players(['a','b','c'])
+
+        self.assertEqual(len(players),3)
 if __name__ == '__main__':
     unittest.main()
