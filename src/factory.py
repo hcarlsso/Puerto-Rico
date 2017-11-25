@@ -3,6 +3,8 @@ import Plantations as plant_types
 import Buildings as building_types
 import Goods as good_types
 import Utils as ut
+import itertools as it
+
 
 class Game:
 
@@ -27,9 +29,9 @@ class Game:
     def get_player_orders(self, N_players):
 
         # player_order
-        a = range(N_players)
+        a = list(range(N_players))
 
-        return cycle([a[i:] + a[:i] for i in range(len(a))])
+        return it.cycle([a[i:] + a[:i] for i in range(len(a))])
 
     def play(self):
 
@@ -337,7 +339,7 @@ def create_goods():
 
 def prepare_game(players):
 
-    if N_players > 5:
+    if len(players) > 5:
         raise ValueError('Wrong number of players.')
 
     g = Game()
@@ -355,3 +357,5 @@ def prepare_game(players):
     g.available_island_tiles = create_island_tiles()
     g.available_buildings = create_buildings()
     g.available_goods = create_goods()
+
+    return g
