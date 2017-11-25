@@ -2,6 +2,7 @@ import model.Roles as roles
 import model.Plantations as plant_types
 import model.Buildings as building_types
 import model.Goods as good_types
+import model.Colonist as col
 import model as mod
 import Utils as ut
 import itertools as it
@@ -109,8 +110,16 @@ def create_colonists(N_players):
         N_colonists = 95
     else:
         raise
-    return [mod.Colonist() for i in range(N_colonists)]
+    return [col.Colonist() for i in range(N_colonists)]
 
+def create_colonist_portal(N_players):
+
+    supply = create_colonists(N_players)
+    ship = col.Ship()
+
+    portal = col.Portal(ship, supply)
+
+    return portal
 
 def create_island_tiles():
 
@@ -193,7 +202,8 @@ def prepare_game(players):
     g.roles = create_role_cards(N_players)
     g.cargo_ships = create_cargo_ships(N_players)
     g.victory_points = create_victory_points(N_players)
-    g.colonist_supply = create_colonists(N_players)
+
+    g.colonist_portal = create_colonist_portal(N_players)
 
     # Non player dependent
     g.available_island_tiles = create_island_tiles()

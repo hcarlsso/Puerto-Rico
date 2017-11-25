@@ -28,9 +28,10 @@ class Game:
     def __init__(self):
 
         self.players = None
-        self.cargo_ships = None
         self.roles = None
 
+        # The state of the game
+        self.cargo_ships = None
         self.colonist_supply = None
         self.N_plantation_tiles_show = None
         self.victory_points = None
@@ -73,7 +74,7 @@ class Game:
 
 
         conditions = [
-            not self.colonist_supply, # No more colonist
+
             not self.victory_points # No more victory points
         ]
 
@@ -83,6 +84,18 @@ class Game:
 
         return any(conditions)
 
+    def get_player_order(self, start_index):
+
+        N_players = len(self.players)
+        for i in  range(start_index, start_index+N_players):
+
+            if i >= N_players:
+                index = i - N_players
+            else:
+                index = i
+
+            yield self.players[index]
+
     def play_govenor_cycle(self, order):
         # The Governor begins the round by choosing a role.
         # Then the other players can choose a role
@@ -91,7 +104,10 @@ class Game:
             # Choose cards
             # And give
             (chosen, roles_left) = self.players[player_index].choose_role(self.roles)
+
             # Play card
+            order_players = self.get_player_order(player_index)
+            self.play_role(chosen, order_players)
 
             # End of round
             self.roles = roles_left
@@ -105,9 +121,16 @@ class Game:
         # Give back cards
         self.roles.extend(played_roles)
 
-    def play_role(self, role):
+    def play_role(self, role, order_player):
 
-        pass
+        for i, player in enumerate(order_player):
+
+            # First player get privilege
+            if i == 0:
+                role.play_privilege(player, self)
+            else:
+                role.play_ordinary(player, self)
+
 
     def prepare_pre_start(self):
 
@@ -147,10 +170,6 @@ class Game:
             self.players[4].recieve_island_tile(next(corn))
 
 
-class Colonist:
-    def __init__(self):
-        pass
-
 class Player:
     def __init__(self, name, view, controller):
         self.doublons = 0
@@ -176,6 +195,9 @@ class Player:
         return (chosen, roles)
 
 
+    def recieve_doublons(self, doublons):
+        self.doublons += doublons
+        self.view.got_doublon(self, doublons)
 
 class Board:
 
