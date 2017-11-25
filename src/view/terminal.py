@@ -8,3 +8,12 @@ class Player:
 
         for i, role in enumerate(roles):
             print('Index {0}: '.format(i+1) + str(role))
+
+
+class Setup:
+    '''
+    Should contain more
+    '''
+    def __init__(self):
+
+        pass

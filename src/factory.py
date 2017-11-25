@@ -1,194 +1,28 @@
-import Roles as roles
-import Plantations as plant_types
-import Buildings as building_types
-import Goods as good_types
+import model.Roles as roles
+import model.Plantations as plant_types
+import model.Buildings as building_types
+import model.Goods as good_types
+import model as mod
 import Utils as ut
 import itertools as it
 
+def get_controller(option):
 
-class Game:
-
-    def __init__(self):
-
-        self.players = None
-        self.cargo_ships = None
-        self.roles = None
-
-        self.colonist_supply = None
-        self.N_plantation_tiles_show = None
-        self.victory_points = None
-        self.available_island_tiles = None
-        self.available_buildings = None
-        self.available_goods = None
-
-        # Always first player have index
-        self.govenor_index = 0
-
-
-
-    def get_player_orders(self, N_players):
-
-        # player_order
-        a = list(range(N_players))
-
-        return it.cycle([a[i:] + a[:i] for i in range(len(a))])
-
-    def play(self):
-
-        # Round number
-        i = 1
-        # Give tiles
-        self.prepare_pre_start()
-        # Prepare other stuff
-        players_orders = self.get_player_orders(len(self.players))
-
-        game_over  = False
-
-        # Governor cycle
-        while not game_over:
-
-            self.play_govenor_cycle(next(players_orders))
-            game_over = self.is_game_over()
-
-        print('Game is over')
-
-    def is_game_over(self):
-
-
-        conditions = [
-            not self.colonist_supply, # No more colonist
-            not self.victory_points # No more victory points
-        ]
-
-        conditions.extend(
-            [p.is_city_full() for p in self.players ]
-        )
-
-        return any(conditions)
-
-    def play_govenor_cycle(self, order):
-        # The Governor begins the round by choosing a role.
-        # Then the other players can choose a role
-        for player_index in order:
-            # Choose cards
-            # And give
-            (rem, chosen) = self.players[player_index].choose_role(self.roles)
-            # Play card
-            pass
-
-        # End of Governor cycle
-        # Give back cards
-
-    def play_role(self, role):
-
+    if option == 'terminal':
+        from controller import terminal as mod
+    else:
         pass
 
-    def prepare_pre_start(self):
+    return mod
 
-        # Do indigo
-        indigo = ut.iterate_and_remove(
-            self.available_island_tiles,
-            plant_types.Indigo()
-        )
+def get_view(option):
 
-        # Take indigo and give to first player
-        self.players[0].recieve_island_tile(next(indigo))
-
-        # Take indigo and give to second player
-        self.players[1].recieve_island_tile(next(indigo))
-
-        N_players = len(self.players)
-
-        if N_players == 5:
-            # Third player gets indigo
-            self.players[2].recieve_island_tile(next(indigo))
-
-        # now the available island tiles should be reduced
-        # Do corn
-        corn = ut.iterate_and_remove(
-            self.available_island_tiles,
-            plant_types.Corn()
-        )
-
-        if N_players == 3:
-            self.players[2].recieve_island_tile(next(corn))
-        elif N_players == 4:
-            self.players[2].recieve_island_tile(next(corn))
-            self.players[3].recieve_island_tile(next(corn))
-        else:
-            # five players
-            self.players[3].recieve_island_tile(next(corn))
-            self.players[4].recieve_island_tile(next(corn))
-
-
-class Colonist:
-    def __init__(self):
+    if option == 'terminal':
+        from view import terminal as viewoption
+    else:
         pass
 
-class Player:
-    def __init__(self, name, view, controller):
-        self.doublons = 0
-        self.board = None
-        self.name = name
-        self.view = view
-        self.controller = controller
-
-    def recieve_island_tile(self, tile):
-        self.board.set_island_tile(tile)
-
-    def is_city_full(self):
-        return self.board.is_city_full()
-
-    def choose_role(self, roles):
-        # Choose role and give back.
-        self.view.display_role_options(name, roles)
-
-        index = self.controller.select_role()
-
-        return (rem, chosen)
-        pass
-
-
-class Board:
-
-    def __init__(self):
-        self.island_spaces = []
-        self.city_spaces = []
-        self.max_space = 12
-
-    def set_island_tile(self, tile):
-        # Each tile has space 1
-        if len(self.island_spaces) <= 12:
-            self.island_spaces.append(tile)
-        else:
-            raise
-
-    def set_city_tile(self, tile):
-        # Default 12 space
-        available_space = self.get_available_space()
-
-        if tile.space <= available_space:
-            self.city_spaces.append(tile)
-        else:
-            raise
-
-    def get_available_space(self):
-        return self.max_space - sum([t.space for t in self.city_spaces])
-
-    def is_city_full(self):
-        # Assume never below zero
-        return self.get_available_space() == 0
-
-class VictoryPoint:
-
-    def __init__(self):
-        pass
-
-
-class CargoShip:
-    def __init__(self, N_spaces):
-
-        self.spaces = [None]*N_spaces
+    return viewoption
 
 
 def create_role_cards(N_players):
@@ -212,21 +46,25 @@ def create_role_cards(N_players):
 
     return standard_cards
 
-def create_players(player_names):
+def create_players(setup, view_mod, controller_mod):
     '''
     player_names: list of strings
     '''
 
+    player_names = setup.get_player_names()
     N_players = len(player_names)
     players = []
 
     N_start_doublons = N_players - 1
     for i in range(N_players):
-        p = Player(player_names[i])
+        p = mod.Player(player_names[i],
+                   view_mod.Player(),
+                   controller_mod.Player())
+
         p.doublons = N_start_doublons
 
         # Add board empty board
-        p.board = Board()
+        p.board = mod.Board()
         players.append(p)
 
     return players
@@ -243,7 +81,7 @@ def create_cargo_ships(N_players):
     else:
         raise
 
-    return [CargoShip(i) for i in N_cargo_ships]
+    return [mod.CargoShip(i) for i in N_cargo_ships]
 
 def create_victory_points(N_players):
 
@@ -256,7 +94,7 @@ def create_victory_points(N_players):
     else:
         raise
 
-    return [VictoryPoint() for i in range(N_start_VP)]
+    return [mod.VictoryPoint() for i in range(N_start_VP)]
 
 def create_colonists(N_players):
 
@@ -271,7 +109,7 @@ def create_colonists(N_players):
         N_colonists = 95
     else:
         raise
-    return [Colonist() for i in range(N_colonists)]
+    return [mod.Colonist() for i in range(N_colonists)]
 
 
 def create_island_tiles():
@@ -345,10 +183,8 @@ def create_goods():
 
 def prepare_game(players):
 
-    if len(players) > 5:
-        raise ValueError('Wrong number of players.')
 
-    g = Game()
+    g = mod.Game()
 
     g.players = players
     N_players = len(players)
@@ -365,3 +201,27 @@ def prepare_game(players):
     g.available_goods = create_goods()
 
     return g
+
+def get_setup(view_mod, controller_mod):
+
+
+    setup = mod.Setup(
+        view = view_mod.Setup(),
+        controller = controller_mod.Setup()
+    )
+    return setup
+
+
+def create_game(options):
+
+
+    view_mod = get_view(options)
+    controller_mod = get_controller(options)
+
+    setup = get_setup(view_mod,controller_mod)
+
+    players = create_players(setup, view_mod, controller_mod)
+
+    game = prepare_game(players)
+
+    return game
