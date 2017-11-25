@@ -15,10 +15,8 @@ class AbstractRole:
         self.doublons = 0
 
 class Captain(AbstractRole):
-    def __init__(self):
-        super().__init__()
-
     def play_privilege(self):
+        super().get_stored_doublons(player)
         # Get extra victory point for first kind of good shipped
         pass
     def play_ordinary(self):
@@ -26,9 +24,8 @@ class Captain(AbstractRole):
         pass
 
 class Trader(AbstractRole):
-    def __init__(self):
-        super().__init__()
     def play_privilege(self):
+        super().get_stored_doublons(player)
         # Get extra doublon when selling
         pass
     def play_ordinary(self):
@@ -36,8 +33,6 @@ class Trader(AbstractRole):
         pass
 
 class Prospector(AbstractRole):
-    def __init__(self):
-        super().__init__()
     def play_privilege(self, player, game_state):
         super().get_stored_doublons(player)
 
@@ -49,9 +44,8 @@ class Prospector(AbstractRole):
         pass
 
 class Settler(AbstractRole):
-    def __init__(self):
-        super().__init__()
     def play_privilege(self, player, game_state):
+        super().get_stored_doublons(player)
         # Can take quarry instead
         pass
     def play_ordinary(self, player, game_state):
@@ -59,9 +53,8 @@ class Settler(AbstractRole):
         pass
 
 class Builder(AbstractRole):
-    def __init__(self):
-        super().__init__()
     def play_privilege(self):
+        super().get_stored_doublons(player)
         # Get reduction in price
         pass
     def play_ordinary(self):
@@ -69,9 +62,8 @@ class Builder(AbstractRole):
         pass
 
 class Mayor(AbstractRole):
-    def __init__(self):
-        super().__init__()
     def play_privilege(self):
+        super().get_stored_doublons(player)
         # Get additional colonist from supply
         pass
     def play_ordinary(self):
@@ -79,9 +71,8 @@ class Mayor(AbstractRole):
         pass
 
 class Craftsman(AbstractRole):
-    def __init__(self):
-        super().__init__()
     def play_privilege(self):
+        super().get_stored_doublons(player)
         # Additional good from supply
         pass
     def play_ordinary(self):

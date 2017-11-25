@@ -33,8 +33,8 @@ class Game:
         # The state of the game
         self.cargo_ships = None
         self.colonist_portal = None
+        self.tiles_portal = None
 
-        self.N_plantation_tiles_show = None
         self.victory_points = None
         self.available_island_tiles = None
         self.available_buildings = None
@@ -42,7 +42,6 @@ class Game:
 
         # Always first player have index
         self.govenor_index = 0
-
 
 
     def get_player_orders(self, N_players):
@@ -75,7 +74,7 @@ class Game:
 
 
         conditions = [
-
+            self.colonist_portal.is_game_over(),
             not self.victory_points # No more victory points
         ]
 
@@ -188,13 +187,9 @@ class Player:
     def choose_role(self, roles):
         # Choose role and give back.
         self.view.display_role_options(self.name, roles)
-
         index = self.controller.select_role()
-
         chosen = roles.pop(index)
-
         return (chosen, roles)
-
 
     def recieve_doublons(self, doublons):
         self.doublons += doublons

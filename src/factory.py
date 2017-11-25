@@ -208,9 +208,9 @@ def prepare_game(players):
     g.victory_points = create_victory_points(N_players)
 
     g.colonist_portal = create_colonist_portal(N_players)
-
     # Non player dependent
     g.tiles_portal = create_tiles_portal(N_players)
+
     g.available_buildings = create_buildings()
     g.available_goods = create_goods()
 
