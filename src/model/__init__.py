@@ -32,7 +32,8 @@ class Game:
 
         # The state of the game
         self.cargo_ships = None
-        self.colonist_supply = None
+        self.colonist_portal = None
+
         self.N_plantation_tiles_show = None
         self.victory_points = None
         self.available_island_tiles = None

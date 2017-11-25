@@ -121,13 +121,10 @@ def create_colonist_portal(N_players):
 
     return portal
 
-def create_island_tiles():
+def create_plantation_tiles():
 
     island_tiles = []
 
-    island_tiles.extend(
-        [plant_types.Quarry() for i in range(8)]
-    )
 
     island_tiles.extend(
         [plant_types.Coffee() for i in range(8)]
@@ -150,6 +147,13 @@ def create_island_tiles():
     )
 
     return island_tiles
+
+def create_tiles_portal(N_players):
+
+    quarries = [plant_types.Quarry() for i in range(8)]
+    tiles = create_plantation_tiles()
+
+    return plant_types.Portal(N_players + 1, quarries, tiles)
 
 def create_buildings():
 
@@ -206,7 +210,7 @@ def prepare_game(players):
     g.colonist_portal = create_colonist_portal(N_players)
 
     # Non player dependent
-    g.available_island_tiles = create_island_tiles()
+    g.tiles_portal = create_tiles_portal(N_players)
     g.available_buildings = create_buildings()
     g.available_goods = create_goods()
 

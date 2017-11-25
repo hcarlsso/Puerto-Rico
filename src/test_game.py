@@ -1,8 +1,6 @@
 import unittest
 import unittest.mock as mock
 import factory as f
-import tests.mock_view as mv
-import tests.mock_controller as mc
 
 class TestGame(unittest.TestCase):
 
@@ -73,6 +71,48 @@ class TestColonist(unittest.TestCase):
         self.assertTrue(portal.is_game_over())
         self.assertEqual(len(list(portal.empty_ship())), 45)
         self.assertTrue(portal.is_game_over())
+
+
+class TestPlantation(unittest.TestCase):
+
+    def test(self):
+
+        portal = f.create_tiles_portal(3)
+        self.assertDictEqual(
+            portal.get_state(),{'on_display': [], 'plantations': 50, 'quarries': 8}
+        )
+        import random
+        random.seed(0)
+        portal.fill_display()
+
+        self.assertDictEqual(
+            portal.get_state(),
+            {'on_display': ['Coffee', 'Corn', 'Corn', 'Indigo'],
+             'plantations': 46, 'quarries': 8}
+        )
+
+        q = portal.take_quarry()
+        self.assertDictEqual(
+            portal.get_state(),
+            {'on_display': ['Coffee', 'Corn', 'Corn', 'Indigo'],
+             'plantations': 46, 'quarries': 7}
+        )
+
+        available_tile = portal.get_on_display()
+        self.assertDictEqual(
+            portal.get_state(),
+            {'on_display': [],
+             'plantations': 46, 'quarries': 7}
+        )
+
+        available_tile.pop()
+        portal.return_unselected(available_tile)
+        self.assertDictEqual(
+            portal.get_state(),
+            {'on_display': [],
+             'plantations': 49, 'quarries': 7}
+        )
+
 
 if __name__ == '__main__':
     unittest.main()
