@@ -3,7 +3,10 @@ class Player:
     def __init__(self):
         pass
 
-    def display_role_options(self, name, roles):
+    def display_options(self, name, roles):
+        '''
+        Display options in a list
+        '''
         print('Player {0} choose role:'.format(name))
 
         for i, role in enumerate(roles):

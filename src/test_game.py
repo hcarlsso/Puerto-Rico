@@ -114,5 +114,57 @@ class TestPlantation(unittest.TestCase):
         )
 
 
+    def test_choose_plantaion(self):
+
+        portal = f.create_tiles_portal(3)
+        self.assertDictEqual(
+            portal.get_state(),{'on_display': [], 'plantations': 50, 'quarries': 8}
+        )
+        import random
+        random.seed(0)
+        portal.fill_display()
+
+        self.assertDictEqual(
+            portal.get_state(),
+            {'on_display': ['Coffee', 'Corn', 'Corn', 'Indigo'],
+             'plantations': 46, 'quarries': 8}
+        )
+        # Choose last option
+        player = mock.MagicMock()
+        player.choose_plantation = lambda x: x[:-1]
+
+        portal.play_selection(player)
+        self.assertDictEqual(
+            portal.get_state(),
+            {'on_display': ['Coffee', 'Corn', 'Corn'],
+             'plantations': 46, 'quarries': 8}
+        )
+
+    def test_choose_plantaion_quarry(self):
+
+        portal = f.create_tiles_portal(3)
+        self.assertDictEqual(
+            portal.get_state(),{'on_display': [], 'plantations': 50, 'quarries': 8}
+        )
+        import random
+        random.seed(0)
+        portal.fill_display()
+
+        self.assertDictEqual(
+            portal.get_state(),
+            {'on_display': ['Coffee', 'Corn', 'Corn', 'Indigo'],
+             'plantations': 46, 'quarries': 8}
+        )
+        # Choose last option
+        player = mock.MagicMock()
+        player.choose_plantation = lambda x: x[:-1]
+
+        portal.play_selection(player, quarry_option = True)
+        self.assertDictEqual(
+            portal.get_state(),
+            {'on_display': ['Coffee', 'Corn', 'Corn', 'Indigo'],
+             'plantations': 46, 'quarries': 7}
+        )
+
 if __name__ == '__main__':
     unittest.main()

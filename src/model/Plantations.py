@@ -10,7 +10,9 @@ class Portal:
         self.on_display = []
 
     def fill_display(self):
-
+        '''
+        Randomly select plantations  for display.
+        '''
         # Select items
         N_plantations = len(self.plantations)
 
@@ -18,6 +20,21 @@ class Portal:
 
         self.on_display = [p for (i, p) in enumerate(self.plantations) if i in indeces]
         self.plantations = [p for (i, p) in enumerate(self.plantations) if i not in indeces]
+
+    def play_selection(self, player, quarry_option = False):
+
+        options = self.on_display
+        if quarry_option:
+            quarry = self.quarries.pop()
+            options.append(quarry)
+
+        remaining = player.choose_plantation(options)
+        if quarry_option and remaining[-1] == Quarry():
+            # Give back quarry
+            quarry = remaining.pop()
+            self.quarries.append(quarry)
+
+        self.on_display = remaining
 
     def take_quarry(self):
         return self.quarries.pop()
@@ -53,13 +70,6 @@ class IslandTile:
         self.filled = None
         return temp
 
-class Quarry(IslandTile):
-
-    def __init__(self):
-        pass
-
-class PlantationTile(IslandTile):
-
     def __eq__(self, other):
 
         if type(self) == type(other):
@@ -67,27 +77,32 @@ class PlantationTile(IslandTile):
         else:
             return False
 
-class Coffee(PlantationTile):
+class Quarry(IslandTile):
+
+    def __init__(self):
+        pass
+
+class Coffee(IslandTile):
     def __init__(self):
         super().__init__()
     def __str__(self):
         return 'Coffee'
-class Tobacco(PlantationTile):
+class Tobacco(IslandTile):
     def __init__(self):
         super().__init__()
     def __str__(self):
         return 'Tobacco'
-class Corn(PlantationTile):
+class Corn(IslandTile):
     def __init__(self):
         super().__init__()
     def __str__(self):
         return 'Corn'
-class Sugar(PlantationTile):
+class Sugar(IslandTile):
     def __init__(self):
         super().__init__()
     def __str__(self):
         return 'Sugar'
-class Indigo(PlantationTile):
+class Indigo(IslandTile):
     def __init__(self):
         super().__init__()
     def __str__(self):

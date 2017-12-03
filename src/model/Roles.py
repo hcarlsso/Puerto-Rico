@@ -47,10 +47,17 @@ class Settler(AbstractRole):
     def play_privilege(self, player, game_state):
         super().get_stored_doublons(player)
         # Can take quarry instead
-        pass
+        game_state.tiles_portal.play_selection(
+            player,
+            quarry_option = True
+        )
     def play_ordinary(self, player, game_state):
         # Each player takes plantation
-        pass
+        # Default cannot take quarry
+        game_state.tiles_portal.play_selection(
+            player,
+            quarry_option = False
+        )
 
 class Builder(AbstractRole):
     def play_privilege(self):

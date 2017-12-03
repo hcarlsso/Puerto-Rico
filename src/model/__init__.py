@@ -186,14 +186,24 @@ class Player:
 
     def choose_role(self, roles):
         # Choose role and give back.
-        self.view.display_role_options(self.name, roles)
-        index = self.controller.select_role()
+        self.view.display_options(self.name, roles)
+        index = self.controller.select_index()
         chosen = roles.pop(index)
         return (chosen, roles)
 
     def recieve_doublons(self, doublons):
         self.doublons += doublons
         self.view.got_doublon(self, doublons)
+
+    def choose_plantation(self, options):
+
+        self.view.display_options(self.name, roles)
+        index = self.controller.select_index()
+        chosen = options.pop(index)
+        self.board.set_island_tile(chosen)
+
+        # Return remaining
+        return options
 
 class Board:
 
