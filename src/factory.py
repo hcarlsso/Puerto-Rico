@@ -226,11 +226,8 @@ def get_setup(view_mod, controller_mod):
     return setup
 
 
-def create_game(options):
+def create_game(view_mod, controller_mod):
 
-
-    view_mod = get_view(options)
-    controller_mod = get_controller(options)
 
     setup = get_setup(view_mod,controller_mod)
 

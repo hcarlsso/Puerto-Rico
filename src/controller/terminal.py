@@ -1,11 +1,16 @@
+from . import QuitGame
+
 class Player:
 
     def __init__(self):
         pass
 
     def select_index(self):
-
-        return int(input('Which index? ')) - 1
+        inp = input('Which index? [q to quit]')
+        if inp == 'q':
+            raise QuitGame
+        else:
+            return int(inp) - 1
 
 class Setup:
 

@@ -1,8 +1,39 @@
-import unittest
-import unittest.mock as mock
+import unittest as ut
+from unittest.mock import MagicMock
+# import unittest.mock as mock
 import factory as f
+from controller import QuitGame
 
-class TestGame(unittest.TestCase):
+class TestGame(ut.TestCase):
+
+    def test_play_game(self):
+
+        view = f.get_view('terminal')
+        # view = ut.mock.MagicMock()
+        controller = ut.mock.MagicMock()
+
+        # view.Setup = ut.mock.MagicMock()
+        setup = ut.mock.MagicMock()
+        setup.get_player_names = ut.mock.MagicMock(
+            return_value = ['a', 'b','c']
+        )
+
+        p1 = MagicMock()
+        p1.select_index = MagicMock(side_effect = QuitGame())
+        p2 = MagicMock()
+        p2.select_index = MagicMock(return_value = 0)
+        p3 = MagicMock()
+        p3.select_index = MagicMock(return_value = 0)
+
+        controller.Player.side_effect = [p1, p2,p3]
+        controller.Setup = ut.mock.MagicMock(return_value = setup)
+
+        game = f.create_game(view, controller)
+
+        try:
+            game.play()
+        except QuitGame:
+            pass
 
     def test_create_game(self):
 
@@ -28,11 +59,11 @@ class TestGame(unittest.TestCase):
         self.assertListEqual(next(order), [0,1,2])
 
     def test_create_players(self):
-        setup = mock.Mock()
+        setup = ut.mock.Mock()
         setup.get_player_names.return_value = ['a','b','c']
 
-        mock_view = mock.Mock()
-        mock_control = mock.Mock()
+        mock_view = ut.mock.Mock()
+        mock_control = ut.mock.Mock()
         players = f.create_players(
             setup,
             mock_view,
@@ -42,7 +73,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(len(players),3)
 
 
-class TestColonist(unittest.TestCase):
+class TestColonist(ut.TestCase):
 
     def test(self):
         portal = f.create_colonist_portal(3)
@@ -73,7 +104,7 @@ class TestColonist(unittest.TestCase):
         self.assertTrue(portal.is_game_over())
 
 
-class TestPlantation(unittest.TestCase):
+class TestPlantation(ut.TestCase):
 
     def test(self):
 
@@ -130,7 +161,7 @@ class TestPlantation(unittest.TestCase):
              'plantations': 46, 'quarries': 8}
         )
         # Choose last option
-        player = mock.MagicMock()
+        player = ut.mock.MagicMock()
         player.choose_plantation = lambda x: x[:-1]
 
         portal.play_selection(player)
@@ -156,7 +187,7 @@ class TestPlantation(unittest.TestCase):
              'plantations': 46, 'quarries': 8}
         )
         # Choose last option
-        player = mock.MagicMock()
+        player = ut.mock.MagicMock()
         player.choose_plantation = lambda x: x[:-1]
 
         portal.play_selection(player, quarry_option = True)
@@ -167,4 +198,4 @@ class TestPlantation(unittest.TestCase):
         )
 
 if __name__ == '__main__':
-    unittest.main()
+    ut.main()

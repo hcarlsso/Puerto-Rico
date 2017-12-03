@@ -1,0 +1,2 @@
+class QuitGame(Exception):
+    pass

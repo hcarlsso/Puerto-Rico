@@ -36,7 +36,7 @@ class Game:
         self.tiles_portal = None
 
         self.victory_points = None
-        self.available_island_tiles = None
+
         self.available_buildings = None
         self.available_goods = None
 
@@ -136,7 +136,7 @@ class Game:
 
         # Do indigo
         indigo = ut.iterate_and_remove(
-            self.available_island_tiles,
+            self.tiles_portal.plantations,
             plant_types.Indigo()
         )
 
@@ -155,7 +155,7 @@ class Game:
         # now the available island tiles should be reduced
         # Do corn
         corn = ut.iterate_and_remove(
-            self.available_island_tiles,
+            self.tiles_portal.plantations,
             plant_types.Corn()
         )
 
