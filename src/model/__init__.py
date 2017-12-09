@@ -4,6 +4,7 @@ from . import Buildings as building_types
 from . import Goods as good_types
 import Utils as ut
 import itertools as it
+from collections import Counter
 
 class Setup:
 
@@ -43,6 +44,18 @@ class Game:
         # Always first player have index
         self.govenor_index = 0
 
+    def get_total_state(self):
+
+        state = {}
+
+        state['players'] = [p.get_state() for p in self.players]
+        state['colonist'] = self.colonist_portal.get_state()
+        state['tiles'] = self.tiles_portal.get_state()
+        state['remaining_victory_points'] = len(self.victory_points)
+        state['available_goods'] = dict(
+            Counter([str(p) for p in self.available_goods])
+        )
+        return state
 
     def get_player_orders(self, N_players):
 
@@ -52,9 +65,6 @@ class Game:
         return it.cycle([a[i:] + a[:i] for i in range(len(a))])
 
     def play(self):
-
-        # Round number
-        i = 1
         # Give tiles
         self.prepare_pre_start()
         # Prepare other stuff
@@ -134,6 +144,11 @@ class Game:
 
     def prepare_pre_start(self):
 
+        # Give out money
+        N_start_doublons = len(self.players) - 1
+        for p in self.players:
+            p.doubloons = N_start_doublons
+
         # Do indigo
         indigo = ut.iterate_and_remove(
             self.tiles_portal.plantations,
@@ -172,11 +187,22 @@ class Game:
 
 class Player:
     def __init__(self, name, view, controller):
-        self.doublons = 0
+        self.doubloons = 0
         self.board = None
         self.name = name
+        self.victory_points = []
+
         self.view = view
         self.controller = controller
+
+    def get_state(self):
+
+        return dict(
+            name = self.name,
+            doubloons = self.doubloons,
+            board = self.board.get_state(),
+            victory_points = len(self.victory_points)
+        )
 
     def recieve_island_tile(self, tile):
         self.board.set_island_tile(tile)
@@ -211,6 +237,13 @@ class Board:
         self.island_spaces = []
         self.city_spaces = []
         self.max_space = 12
+
+    def get_state(self):
+
+        return dict(
+            island_spaces = [str(p) for p in self.island_spaces],
+            city_spaces = [str(p) for p in self.city_spaces]
+        )
 
     def set_island_tile(self, tile):
         # Each tile has space 1

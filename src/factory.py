@@ -56,13 +56,11 @@ def create_players(setup, view_mod, controller_mod):
     N_players = len(player_names)
     players = []
 
-    N_start_doublons = N_players - 1
+
     for i in range(N_players):
         p = mod.Player(player_names[i],
                    view_mod.Player(),
                    controller_mod.Player())
-
-        p.doublons = N_start_doublons
 
         # Add board empty board
         p.board = mod.Board()

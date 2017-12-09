@@ -1,18 +1,80 @@
 import unittest as ut
 from unittest.mock import MagicMock
-# import unittest.mock as mock
 import factory as f
 from controller import QuitGame
 
 class TestGame(ut.TestCase):
 
+    def test_get_total_state(self):
+
+        view = f.get_view('terminal')
+
+        setup = ut.mock.MagicMock()
+        setup.get_player_names = ut.mock.MagicMock(
+            return_value = ['a', 'b','c']
+        )
+
+        p1 = MagicMock()
+        p2 = MagicMock()
+        p3 = MagicMock()
+
+        controller = ut.mock.MagicMock()
+        controller.Player.side_effect = [p1, p2,p3]
+        controller.Setup = ut.mock.MagicMock(return_value = setup)
+
+        game = f.create_game(view, controller)
+
+        self.maxDiff = None
+        self.assertDictEqual(
+            game.get_total_state(),
+            {
+                'players': [
+                    {'name':'a',
+                     'doubloons' : 0,
+                     'victory_points': 0,
+                     'board': {
+                         'city_spaces' : [],
+                         'island_spaces' : [],
+                     }
+                    },
+                    {'name':'b',
+                     'doubloons' : 0,
+                     'victory_points': 0,
+                     'board': {
+                         'city_spaces' : [],
+                         'island_spaces' : [],
+                     }
+                    },
+                    {'name':'c',
+                    'doubloons' :0,
+                     'victory_points': 0,
+                     'board': {
+                         'city_spaces' : [],
+                         'island_spaces' : [],
+                     }
+                    }
+                ],
+                'colonist': {
+                    'ship': 0, 'supply': 55
+                },
+                'tiles': {
+                    'on_display': [], 'plantations': 50, 'quarries': 8
+                },
+                'remaining_victory_points': 75,
+                'available_goods': {
+                    'coffee': 9,
+                    'corn': 10,
+                    'indigo': 11,
+                    'sugar': 11,
+                    'tobacco': 9
+                }
+            }
+        )
     def test_play_game(self):
 
         view = f.get_view('terminal')
-        # view = ut.mock.MagicMock()
         controller = ut.mock.MagicMock()
 
-        # view.Setup = ut.mock.MagicMock()
         setup = ut.mock.MagicMock()
         setup.get_player_names = ut.mock.MagicMock(
             return_value = ['a', 'b','c']
@@ -30,10 +92,7 @@ class TestGame(ut.TestCase):
 
         game = f.create_game(view, controller)
 
-        try:
-            game.play()
-        except QuitGame:
-            pass
+        self.assertRaises(QuitGame, game.play)
 
     def test_create_game(self):
 
@@ -110,7 +169,9 @@ class TestPlantation(ut.TestCase):
 
         portal = f.create_tiles_portal(3)
         self.assertDictEqual(
-            portal.get_state(),{'on_display': [], 'plantations': 50, 'quarries': 8}
+            portal.get_state(),
+            {'on_display': [],
+             'plantations': 50, 'quarries': 8}
         )
         import random
         random.seed(0)
@@ -175,7 +236,8 @@ class TestPlantation(ut.TestCase):
 
         portal = f.create_tiles_portal(3)
         self.assertDictEqual(
-            portal.get_state(),{'on_display': [], 'plantations': 50, 'quarries': 8}
+            portal.get_state(),
+            {'on_display': [], 'plantations': 50, 'quarries': 8}
         )
         import random
         random.seed(0)
