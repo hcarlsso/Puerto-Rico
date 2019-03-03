@@ -1,22 +1,22 @@
 class AbstractRole:
     def __init__(self):
-        self.doublons = 0
+        self.doubloons = 0
     def __str__(self):
-        return self.__class__.__name__ + " doublons: {:d}".format(self.doublons)
+        return self.__class__.__name__ + " doubloons: {:d}".format(self.doubloons)
 
     def add_doublon(self):
-        self.doublons += 1
+        self.doubloons += 1
 
-    def get_stored_doublons(self, player):
+    def get_stored_doubloons(self, player):
         # Make copy
-        player.recieve_doublons(self.doublons)
+        player.recieve_doubloons(self.doubloons)
 
         # Reset
-        self.doublons = 0
+        self.doubloons = 0
 
 class Captain(AbstractRole):
     def play_privilege(self):
-        super().get_stored_doublons(player)
+        super().get_stored_doubloons(player)
         # Get extra victory point for first kind of good shipped
         pass
     def play_ordinary(self):
@@ -25,7 +25,7 @@ class Captain(AbstractRole):
 
 class Trader(AbstractRole):
     def play_privilege(self):
-        super().get_stored_doublons(player)
+        super().get_stored_doubloons(player)
         # Get extra doublon when selling
         pass
     def play_ordinary(self):
@@ -34,10 +34,10 @@ class Trader(AbstractRole):
 
 class Prospector(AbstractRole):
     def play_privilege(self, player, game_state):
-        super().get_stored_doublons(player)
+        super().get_stored_doubloons(player)
 
-        # Recieve 1 doublon
-        player.recieve_doublons(1)
+        # Recieve 1 doubloon
+        player.recieve_doubloons(1)
 
     def play_ordinary(self, player, game_state):
         # Nothing happens here
@@ -45,7 +45,7 @@ class Prospector(AbstractRole):
 
 class Settler(AbstractRole):
     def play_privilege(self, player, game_state):
-        super().get_stored_doublons(player)
+        super().get_stored_doubloons(player)
         # Can take quarry instead
         game_state.tiles_portal.play_selection(
             player,
@@ -61,7 +61,7 @@ class Settler(AbstractRole):
 
 class Builder(AbstractRole):
     def play_privilege(self):
-        super().get_stored_doublons(player)
+        super().get_stored_doubloons(player)
         # Get reduction in price
         pass
     def play_ordinary(self):
@@ -70,7 +70,7 @@ class Builder(AbstractRole):
 
 class Mayor(AbstractRole):
     def play_privilege(self):
-        super().get_stored_doublons(player)
+        super().get_stored_doubloons(player)
         # Get additional colonist from supply
         pass
     def play_ordinary(self):
@@ -79,7 +79,7 @@ class Mayor(AbstractRole):
 
 class Craftsman(AbstractRole):
     def play_privilege(self):
-        super().get_stored_doublons(player)
+        super().get_stored_doubloons(player)
         # Additional good from supply
         pass
     def play_ordinary(self):

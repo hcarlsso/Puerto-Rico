@@ -53,11 +53,10 @@ def create_players(setup, view_mod, controller_mod):
     '''
 
     player_names = setup.get_player_names()
-    N_players = len(player_names)
     players = []
 
 
-    for i in range(N_players):
+    for i in range(len(player_names)):
         p = mod.Player(player_names[i],
                    view_mod.Player(),
                    controller_mod.Player())
@@ -72,11 +71,11 @@ def create_cargo_ships(N_players):
 
     # Define cargo ships
     if N_players == 3:
-        N_cargo_ships = [4,5,6]
+        N_cargo_ships = [4, 5, 6]
     elif N_players == 4:
-        N_cargo_ships = [5,6, 7]
+        N_cargo_ships = [5, 6, 7]
     elif N_players == 5:
-        N_cargo_ships = [6,7,8]
+        N_cargo_ships = [6, 7, 8]
     else:
         raise
 
@@ -218,8 +217,8 @@ def get_setup(view_mod, controller_mod):
 
 
     setup = mod.Setup(
-        view = view_mod.Setup(),
-        controller = controller_mod.Setup()
+        view=view_mod.Setup(),
+        controller=controller_mod.Setup()
     )
     return setup
 
@@ -227,7 +226,7 @@ def get_setup(view_mod, controller_mod):
 def create_game(view_mod, controller_mod):
 
 
-    setup = get_setup(view_mod,controller_mod)
+    setup = get_setup(view_mod, controller_mod)
 
     players = create_players(setup, view_mod, controller_mod)
 

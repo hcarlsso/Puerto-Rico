@@ -12,11 +12,11 @@ class Player:
         for i, role in enumerate(roles):
             print('Index {0}: '.format(i+1) + str(role))
 
-    def got_doublon(self, player, doublons):
+    def got_doubloon(self, player, doubloons):
 
         print(
-            "Player {0} got {:d} doublons. Total count: {:d}".format(
-                player.name, doublons, player.doublons
+            "Player {:s} got {:d} doubloons. Total count: {:d}".format(
+                player.name, doubloons, player.doubloons
             )
         )
 

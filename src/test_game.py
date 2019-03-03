@@ -1,5 +1,5 @@
-import unittest as ut
 from unittest.mock import MagicMock
+import unittest as ut
 import factory as f
 from controller import QuitGame
 

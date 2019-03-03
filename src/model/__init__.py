@@ -1,13 +1,22 @@
+'''
+Main classes in model.
+'''
+import itertools as it
+from collections import Counter
+
+import Utils as ut
+
 from . import Roles as roles
 from . import Plantations as plant_types
 from . import Buildings as building_types
 from . import Goods as good_types
-import Utils as ut
-import itertools as it
-from collections import Counter
+
+
 
 class Setup:
-
+    '''
+    Setup
+    '''
     def __init__(self, view, controller):
 
         self.view = view
@@ -107,13 +116,18 @@ class Game:
             yield self.players[index]
 
     def play_govenor_cycle(self, order):
-        # The Governor begins the round by choosing a role.
-        # Then the other players can choose a role
+        '''
+        The Governor begins the round by choosing a role.
+        Then the other players can choose a role
+        '''
+
         played_roles = []
         for player_index in order:
             # Choose cards
             # And give
-            (chosen, roles_left) = self.players[player_index].choose_role(self.roles)
+            (chosen, roles_left) = self.players[player_index].choose_role(
+                self.roles
+            )
 
             # Play card
             order_players = self.get_player_order(player_index)
@@ -132,6 +146,9 @@ class Game:
         self.roles.extend(played_roles)
 
     def play_role(self, role, order_player):
+        '''
+        Play a single role card.
+        '''
 
         for i, player in enumerate(order_player):
 
@@ -145,9 +162,9 @@ class Game:
     def prepare_pre_start(self):
 
         # Give out money
-        N_start_doublons = len(self.players) - 1
+        N_start_doubloons = len(self.players) - 1
         for p in self.players:
-            p.doubloons = N_start_doublons
+            p.doubloons = N_start_doubloons
 
         # Do indigo
         indigo = ut.iterate_and_remove(
@@ -217,13 +234,13 @@ class Player:
         chosen = roles.pop(index)
         return (chosen, roles)
 
-    def recieve_doublons(self, doublons):
-        self.doublons += doublons
-        self.view.got_doublon(self, doublons)
+    def recieve_doubloons(self, doubloons):
+        self.doubloons += doubloons
+        self.view.got_doubloon(self, doubloons)
 
     def choose_plantation(self, options):
 
-        self.view.display_options(self.name, roles)
+        self.view.display_options(self.name, options)
         index = self.controller.select_index()
         chosen = options.pop(index)
         self.board.set_island_tile(chosen)
