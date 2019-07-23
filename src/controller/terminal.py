@@ -6,11 +6,27 @@ class Player:
         pass
 
     def select_index(self):
-        inp = input('Which index? [q to quit]')
-        if inp == 'q':
-            raise QuitGame
-        else:
-            return int(inp) - 1
+        '''
+        Select a number
+        '''
+        text = 'Which index?'
+        inp = self.display_question(text)
+        return int(inp) - 1
+
+    def display_question(self, text):
+        '''
+        Do the command input
+        '''
+        text_cmd = text + ' [q to quit/s to show game]: '
+        while True:
+            resp = input(text_cmd)
+            if resp == 'q':
+                raise QuitGame
+            elif resp == 's':
+                pass
+            else:
+                break
+        return resp
 
 class Setup:
 

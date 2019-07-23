@@ -1,5 +1,7 @@
 class Portal:
-
+    '''
+    The class to handle all colonist matters.
+    '''
     def __init__(self, ship, supply):
 
         self.ship = ship

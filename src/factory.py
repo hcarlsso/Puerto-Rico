@@ -26,7 +26,7 @@ def get_view(option):
     return viewoption
 
 
-def create_role_cards(N_players):
+def create_role_cards(n_players):
 
     standard_cards = [
         roles.Captain(),
@@ -36,13 +36,13 @@ def create_role_cards(N_players):
         roles.Mayor(),
         roles.Craftsman(),
     ]
-    if N_players > 3:
+    if n_players > 3:
         # 4 and 5 players
         standard_cards.append(roles.Prospector())
-    if N_players > 4:
+    if n_players > 4:
         # 5 players
         standard_cards.append(roles.Prospector())
-    if N_players > 5:
+    if n_players > 5:
         raise ValueError('Wrong number of players.')
 
     return standard_cards
@@ -67,51 +67,51 @@ def create_players(setup, view_mod, controller_mod):
 
     return players
 
-def create_cargo_ships(N_players):
+def create_cargo_ships(n_players):
 
     # Define cargo ships
-    if N_players == 3:
-        N_cargo_ships = [4, 5, 6]
-    elif N_players == 4:
-        N_cargo_ships = [5, 6, 7]
-    elif N_players == 5:
-        N_cargo_ships = [6, 7, 8]
+    if n_players == 3:
+        n_cargo_ships = [4, 5, 6]
+    elif n_players == 4:
+        n_cargo_ships = [5, 6, 7]
+    elif n_players == 5:
+        n_cargo_ships = [6, 7, 8]
     else:
         raise
 
-    return [mod.CargoShip(i) for i in N_cargo_ships]
+    return [mod.CargoShip(i) for i in n_cargo_ships]
 
-def create_victory_points(N_players):
+def create_victory_points(n_players):
 
-    if N_players == 3:
-        N_start_VP = 75
-    elif N_players == 4:
-        N_start_VP = 100
-    elif N_players == 5:
-        N_start_VP = 122
+    if n_players == 3:
+        n_start_vp = 75
+    elif n_players == 4:
+        n_start_vp = 100
+    elif n_players == 5:
+        n_start_vp = 122
     else:
         raise
 
-    return [mod.VictoryPoint() for i in range(N_start_VP)]
+    return [mod.VictoryPoint() for i in range(n_start_vp)]
 
-def create_colonists(N_players):
+def create_colonists(n_players):
 
-    if N_players == 3:
+    if n_players == 3:
         # Define number of colonist
-        N_colonists = 55
-    elif N_players == 4:
+        n_colonists = 55
+    elif n_players == 4:
         # Define number of colonist
-        N_colonists = 75
-    elif N_players == 5:
+        n_colonists = 75
+    elif n_players == 5:
         # Define number of colonist
-        N_colonists = 95
+        n_colonists = 95
     else:
         raise
-    return [col.Colonist() for i in range(N_colonists)]
+    return [col.Colonist() for i in range(n_colonists)]
 
-def create_colonist_portal(N_players):
+def create_colonist_portal(n_players):
 
-    supply = create_colonists(N_players)
+    supply = create_colonists(n_players)
     ship = col.Ship()
 
     portal = col.Portal(ship, supply)
@@ -145,12 +145,12 @@ def create_plantation_tiles():
 
     return island_tiles
 
-def create_tiles_portal(N_players):
+def create_tiles_portal(n_players):
 
     quarries = [plant_types.Quarry() for i in range(8)]
     tiles = create_plantation_tiles()
 
-    return plant_types.Portal(N_players + 1, quarries, tiles)
+    return plant_types.Portal(n_players + 1, quarries, tiles)
 
 def create_buildings():
 
@@ -191,27 +191,28 @@ def create_goods():
 
     return goods
 
-def prepare_game(players):
+def prepare_game(players, view_mod):
+    '''
+    Create the overall game object
+    '''
+
+    n_players = len(players)
+    game = mod.Game(
+        players,
+        create_role_cards(n_players),
+        create_cargo_ships(n_players),
+        create_colonist_portal(n_players),
+        create_tiles_portal(n_players),
+        create_victory_points(n_players),
+        create_buildings(),
+        create_goods(),
+        view_mod.Game()
+    )
 
 
-    g = mod.Game()
+    game.N_plantation_tiles_show = n_players + 1
 
-    g.players = players
-    N_players = len(players)
-
-    g.N_plantation_tiles_show = N_players + 1
-    g.roles = create_role_cards(N_players)
-    g.cargo_ships = create_cargo_ships(N_players)
-    g.victory_points = create_victory_points(N_players)
-
-    g.colonist_portal = create_colonist_portal(N_players)
-    # Non player dependent
-    g.tiles_portal = create_tiles_portal(N_players)
-
-    g.available_buildings = create_buildings()
-    g.available_goods = create_goods()
-
-    return g
+    return game
 
 def get_setup(view_mod, controller_mod):
 
@@ -227,9 +228,7 @@ def create_game(view_mod, controller_mod):
 
 
     setup = get_setup(view_mod, controller_mod)
-
     players = create_players(setup, view_mod, controller_mod)
-
-    game = prepare_game(players)
+    game = prepare_game(players, view_mod)
 
     return game

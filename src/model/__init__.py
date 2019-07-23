@@ -6,7 +6,7 @@ from collections import Counter
 
 import Utils as ut
 
-from . import Roles as roles
+from . import Roles as role_types
 from . import Plantations as plant_types
 from . import Buildings as building_types
 from . import Goods as good_types
@@ -34,21 +34,25 @@ class Setup:
 
 
 class Game:
+    '''
+    Root object of game
+    '''
+    def __init__(self, players, roles, cargo_ships, colonist_portal,
+                 tiles_portal, victory_points, buildings, goods, view):
 
-    def __init__(self):
-
-        self.players = None
-        self.roles = None
+        self.players = players
+        self.roles = roles
 
         # The state of the game
-        self.cargo_ships = None
-        self.colonist_portal = None
-        self.tiles_portal = None
+        self.cargo_ships = cargo_ships
+        self.colonist_portal = colonist_portal
+        self.tiles_portal = tiles_portal
 
-        self.victory_points = None
+        self.victory_points = victory_points
 
-        self.available_buildings = None
-        self.available_goods = None
+        self.available_buildings = buildings
+        self.available_goods = goods
+        self.view = view
 
         # Always first player have index
         self.govenor_index = 0
@@ -66,20 +70,23 @@ class Game:
         )
         return state
 
-    def get_player_orders(self, N_players):
+    def get_player_orders(self, n_players):
 
         # player_order
-        a = list(range(N_players))
+        a = list(range(n_players))
 
         return it.cycle([a[i:] + a[:i] for i in range(len(a))])
 
     def play(self):
+        '''
+        Main loop of game
+        '''
         # Give tiles
         self.prepare_pre_start()
         # Prepare other stuff
         players_orders = self.get_player_orders(len(self.players))
 
-        game_over  = False
+        game_over = False
 
         # Governor cycle
         while not game_over:
@@ -105,11 +112,11 @@ class Game:
 
     def get_player_order(self, start_index):
 
-        N_players = len(self.players)
-        for i in  range(start_index, start_index+N_players):
+        n_players = len(self.players)
+        for i in  range(start_index, start_index+n_players):
 
-            if i >= N_players:
-                index = i - N_players
+            if i >= n_players:
+                index = i - n_players
             else:
                 index = i
 
@@ -123,10 +130,13 @@ class Game:
 
         played_roles = []
         for player_index in order:
+
+            self.view.view_state(self.get_total_state())
             # Choose cards
             # And give
             (chosen, roles_left) = self.players[player_index].choose_role(
-                self.roles
+                self.roles,
+                self
             )
 
             # Play card
@@ -162,9 +172,8 @@ class Game:
     def prepare_pre_start(self):
 
         # Give out money
-        N_start_doubloons = len(self.players) - 1
         for p in self.players:
-            p.doubloons = N_start_doubloons
+            p.doubloons = len(self.players) - 1
 
         # Do indigo
         indigo = ut.iterate_and_remove(
@@ -178,9 +187,9 @@ class Game:
         # Take indigo and give to second player
         self.players[1].recieve_island_tile(next(indigo))
 
-        N_players = len(self.players)
+        n_players = len(self.players)
 
-        if N_players == 5:
+        if n_players == 5:
             # Third player gets indigo
             self.players[2].recieve_island_tile(next(indigo))
 
@@ -191,9 +200,9 @@ class Game:
             plant_types.Corn()
         )
 
-        if N_players == 3:
+        if n_players == 3:
             self.players[2].recieve_island_tile(next(corn))
-        elif N_players == 4:
+        elif n_players == 4:
             self.players[2].recieve_island_tile(next(corn))
             self.players[3].recieve_island_tile(next(corn))
         else:
@@ -215,10 +224,10 @@ class Player:
     def get_state(self):
 
         return dict(
-            name = self.name,
-            doubloons = self.doubloons,
-            board = self.board.get_state(),
-            victory_points = len(self.victory_points)
+            name=self.name,
+            doubloons=self.doubloons,
+            board=self.board.get_state(),
+            victory_points=len(self.victory_points)
         )
 
     def recieve_island_tile(self, tile):
@@ -227,12 +236,14 @@ class Player:
     def is_city_full(self):
         return self.board.is_city_full()
 
-    def choose_role(self, roles):
-        # Choose role and give back.
-        self.view.display_options(self.name, roles)
+    def choose_role(self, roles_to_select, game):
+        '''
+        Choose role and give back.
+        '''
+        self.view.display_options(self.name, roles_to_select)
         index = self.controller.select_index()
-        chosen = roles.pop(index)
-        return (chosen, roles)
+        chosen = roles_to_select.pop(index)
+        return (chosen, roles_to_select)
 
     def recieve_doubloons(self, doubloons):
         self.doubloons += doubloons
@@ -249,6 +260,9 @@ class Player:
         return options
 
 class Board:
+    '''
+    The board each player has.
+    '''
 
     def __init__(self):
         self.island_spaces = []
@@ -258,8 +272,8 @@ class Board:
     def get_state(self):
 
         return dict(
-            island_spaces = [str(p) for p in self.island_spaces],
-            city_spaces = [str(p) for p in self.city_spaces]
+            island_spaces=[str(p) for p in self.island_spaces],
+            city_spaces=[str(p) for p in self.city_spaces]
         )
 
     def set_island_tile(self, tile):

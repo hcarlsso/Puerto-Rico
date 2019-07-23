@@ -95,18 +95,20 @@ class TestGame(ut.TestCase):
         self.assertRaises(QuitGame, game.play)
 
     def test_create_game(self):
-
-        game = f.prepare_game(range(3))
+        view = f.get_view('terminal')
+        game = f.prepare_game(range(3), view)
 
         # self.assertEqual('foo'.upper(), 'FOO')
 
     def test_create_game_wrong_number_of_players(self):
 
-        self.assertRaises(ValueError, f.prepare_game, range(6))
+        view = f.get_view('terminal')
+        self.assertRaises(ValueError, f.prepare_game, range(6), view)
 
     def test_governor_order(self):
 
-        game = f.prepare_game(range(3))
+        view = f.get_view('terminal')
+        game = f.prepare_game(range(3), view)
 
         order = game.get_player_orders(3)
 
