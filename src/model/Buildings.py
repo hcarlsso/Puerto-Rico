@@ -2,10 +2,13 @@ class AbstractBuilding:
     def __init__(self):
         # Fill with colonists
         self.occupation = []
+
 class ProductionBuilding(AbstractBuilding):
     def __init__(self):
         super().__init__()
 
+    def get_state(self):
+        return {}
 
 class IndigoPlant(ProductionBuilding):
 
@@ -46,6 +49,7 @@ class SmallSugarMill(ProductionBuilding):
         self.production_units = 1
         self.good_type = 'sugar'
         super().__init__()
+
 class TobaccoStorage(ProductionBuilding):
     def __init__(self):
         self.victory_points = 3
@@ -53,7 +57,7 @@ class TobaccoStorage(ProductionBuilding):
 
         # Production units
         self.production_units = 3
-        self.good_type = 'tabacco'
+        self.good_type = 'tobacco'
         super().__init__()
 class CoffeeRoaster(ProductionBuilding):
     def __init__(self):

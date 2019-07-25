@@ -41,6 +41,12 @@ class Game:
         for player in state['players']:
             self.view_player(player, 0)
 
+        self.view_colonist_supply(state['colonist'])
+        self.view_plantations(state['tiles'])
+
+        print("Available victory points: " + str(state['remaining_victory_points']))
+        self.view_goods(state['available_goods'])
+
     def view_player(self, player, tabs=0):
 
         prefix_0 = self.prefix * tabs
@@ -49,14 +55,46 @@ class Game:
 
         print(prefix + 'Doubloons: ' + str(player['doubloons']))
         print(prefix + 'Victory Points: ' + str(player['victory_points']))
+        print(prefix + 'Unemployed colonists: ' + str(player['unemployed_colonists']))
         board = player['board']
 
         print(prefix + 'Buildings:')
         prefix_2 = self.prefix * (tabs + 2)
 
-        for building in board['city_spaces']:
+        for (building, state) in board['city_spaces']:
             print(prefix_2 + building)
 
         print(prefix + 'Tiles:')
-        for building in board['island_spaces']:
-            print(prefix_2 + building)
+        for (building, state) in board['island_spaces']:
+            if state['occupied']:
+                string = 'Occupied'
+            else:
+                string = 'Unoccupied'
+            print(prefix_2 + building + self.prefix + string)
+
+    def view_colonist_supply(self, colonist_state, tabs=0):
+        """
+        Display info concerning colonist supply
+        """
+
+        print("Colonist info:")
+        prefix_0 = self.prefix * (tabs + 1)
+        print(prefix_0 + "Colonist on ship: " + str(colonist_state['ship']))
+        print(prefix_0 + "Colonist supply: " + str(colonist_state['supply']))
+
+    def view_plantations(self, state, tabs=0):
+
+        print("Plantation info:")
+        prefix_0 = self.prefix * (tabs + 1)
+        print(prefix_0 + "Plantations left: " + str(state['plantations']))
+        print(prefix_0 + "Quarries left: " + str(state['quarries']))
+        print(prefix_0 + "Available plantations: " + str(state['on_display']))
+
+
+    def view_goods(self, state, tabs=0):
+        goods = ['coffee', 'corn', 'indigo', 'sugar', 'tobacco']
+
+        print("Available goods:")
+        prefix_0 = self.prefix * (tabs + 1)
+        for good in goods:
+            print(prefix_0 + good + ": " + str(state[good]))

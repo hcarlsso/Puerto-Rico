@@ -2,9 +2,9 @@ import random
 
 class Portal:
 
-    def __init__(self, N_show, quarries, plantations):
+    def __init__(self, n_show, quarries, plantations):
 
-        self.N_show = N_show
+        self.n_show = n_show
         self.quarries = quarries
         self.plantations = plantations
         self.on_display = []
@@ -14,14 +14,18 @@ class Portal:
         Randomly select plantations  for display.
         '''
         # Select items
-        N_plantations = len(self.plantations)
+        n_plantations = len(self.plantations)
 
-        indeces = random.sample(list(range(N_plantations)), k = self.N_show)
+        indeces = random.sample(list(range(n_plantations)), k=self.n_show)
 
-        self.on_display = [p for (i, p) in enumerate(self.plantations) if i in indeces]
-        self.plantations = [p for (i, p) in enumerate(self.plantations) if i not in indeces]
+        self.on_display = [
+            p for (i, p) in enumerate(self.plantations) if i in indeces
+        ]
+        self.plantations = [
+            p for (i, p) in enumerate(self.plantations) if i not in indeces
+        ]
 
-    def play_selection(self, player, quarry_option = False):
+    def play_selection(self, player, quarry_option=False):
 
         options = self.on_display
         if quarry_option:
@@ -64,8 +68,18 @@ class IslandTile:
     def occupy(self, colonist):
         self.filled = colonist
 
+    def get_state(self):
+        state = {}
+        if self.filled is None:
+            state['occupied'] = False
+        else:
+            state['occupied'] = True
+        return state
+
     def take_colonist(self):
-        # Return the colonist and empty the place
+        '''
+        Return the colonist and empty the place
+        '''
         temp = self.filled
         self.filled = None
         return temp

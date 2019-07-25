@@ -210,6 +210,8 @@ class Game:
             self.players[3].recieve_island_tile(next(corn))
             self.players[4].recieve_island_tile(next(corn))
 
+        # Fill up tiles portal
+        self.tiles_portal.fill_display()
 
 class Player:
     def __init__(self, name, view, controller):
@@ -217,6 +219,7 @@ class Player:
         self.board = None
         self.name = name
         self.victory_points = []
+        self.unemployed_colonists = []
 
         self.view = view
         self.controller = controller
@@ -227,7 +230,8 @@ class Player:
             name=self.name,
             doubloons=self.doubloons,
             board=self.board.get_state(),
-            victory_points=len(self.victory_points)
+            victory_points=len(self.victory_points),
+            unemployed_colonists=len(self.unemployed_colonists)
         )
 
     def recieve_island_tile(self, tile):
@@ -272,8 +276,14 @@ class Board:
     def get_state(self):
 
         return dict(
-            island_spaces=[str(p) for p in self.island_spaces],
-            city_spaces=[str(p) for p in self.city_spaces]
+            island_spaces=[
+                (str(p), p.get_state())
+                for p in self.island_spaces
+            ],
+            city_spaces=[
+                (str(p), p.get_state())
+                for p in self.city_spaces
+            ]
         )
 
     def set_island_tile(self, tile):
