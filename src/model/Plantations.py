@@ -1,7 +1,9 @@
 import random
 
 class Portal:
-
+    '''
+    Class to handle colonists actions
+    '''
     def __init__(self, n_show, quarries, plantations):
 
         self.n_show = n_show

@@ -25,51 +25,94 @@ class TestGame(ut.TestCase):
         game = f.create_game(view, controller)
 
         self.maxDiff = None
-        self.assertDictEqual(
-            game.get_total_state(),
-            {
-                'players': [
-                    {'name':'a',
-                     'doubloons' : 0,
-                     'victory_points': 0,
-                     'board': {
-                         'city_spaces' : [],
-                         'island_spaces' : [],
-                     }
-                    },
-                    {'name':'b',
-                     'doubloons' : 0,
-                     'victory_points': 0,
-                     'board': {
-                         'city_spaces' : [],
-                         'island_spaces' : [],
-                     }
-                    },
-                    {'name':'c',
-                    'doubloons' :0,
-                     'victory_points': 0,
-                     'board': {
-                         'city_spaces' : [],
-                         'island_spaces' : [],
-                     }
+        # import pprint as pp
+        # pp.pprint(game.get_total_state())
+        ref = {
+            'players': [
+                {'name':'a',
+                 'doubloons' : 2,
+                 'victory_points': 0,
+                 'unemployed_colonists': 0,
+                 'board': {
+                     'city_spaces' : [],
+                     'island_spaces' : [('Indigo', {'occupied': False})],
+                 }
+                },
+                {'name':'b',
+                 'doubloons' : 2,
+                 'victory_points': 0,
+                 'unemployed_colonists': 0,
+                 'board': {
+                     'city_spaces' : [],
+                     'island_spaces' : [('Indigo', {'occupied': False})],
+                 }
+                },
+                {
+                    'name':'c',
+                    'doubloons' : 2,
+                    'victory_points': 0,
+                    'unemployed_colonists': 0,
+                    'board': {
+                        'city_spaces' : [],
+                        'island_spaces' : [('Corn', {'occupied': False})],
                     }
-                ],
-                'colonist': {
-                    'ship': 0, 'supply': 55
-                },
-                'tiles': {
-                    'on_display': [], 'plantations': 50, 'quarries': 8
-                },
-                'remaining_victory_points': 75,
-                'available_goods': {
-                    'coffee': 9,
-                    'corn': 10,
-                    'indigo': 11,
-                    'sugar': 11,
-                    'tobacco': 9
                 }
+            ],
+            'colonist': {
+                'ship': 0, 'supply': 55
+            },
+            'tiles': {
+                'on_display': ['Corn', 'Indigo', 'Indigo', 'Sugar'],
+                'plantations': 43,
+                'quarries': 8
+            },
+            'remaining_victory_points': 75,
+            'available_goods': {
+                'coffee': 9,
+                'corn': 10,
+                'indigo': 11,
+                'sugar': 11,
+                'tobacco': 9
+            },
+            'available_buildings': {
+                'City Hall': 1,
+                'Coffee Roaster': 2,
+                'Construction Hut': 2,
+                'Customs House': 1,
+                'Factory': 2,
+                'Fortress': 1,
+                'Guild Hall': 1,
+                'Hacienda': 2,
+                'Harbor': 2,
+                'Hospice': 2,
+                'Indigo Plant': 2,
+                'Large Market': 2,
+                'Large Warehouse': 2,
+                'Office': 2,
+                'Residence': 1,
+                'Small Indigo Plant': 3,
+                'Small Market': 2,
+                'Small Sugar Mill': 3,
+                'Small Warehouse': 2,
+                'Sugar Mill': 2,
+                'Tobacco Storage': 2,
+                'University': 2,
+                'Wharf': 2
             }
-        )
+        }
+        out = game.get_total_state()
+        tiles_test = out.pop('tiles')
+        tiles_ref = ref.pop('tiles')
+        self.assertDictEqual(out,ref)
+
+        self.assertEqual(tiles_test['plantations'], tiles_ref['plantations'])
+        self.assertEqual(tiles_test['quarries'], tiles_ref['quarries'])
+
+        self.assertEqual(len(tiles_test['on_display']), 4)
+        for t in tiles_test['on_display']:
+            self.assertIn(t, ['Corn', 'Indigo', 'Indigo', 'Sugar', 'Tobacco', 'Coffee'])
+
+
     def test_play_game(self):
 
         view = f.get_view('terminal')
@@ -94,21 +137,20 @@ class TestGame(ut.TestCase):
 
         self.assertRaises(QuitGame, game.play)
 
-    def test_create_game(self):
-        view = f.get_view('terminal')
-        game = f.prepare_game(range(3), view)
-
-        # self.assertEqual('foo'.upper(), 'FOO')
 
     def test_create_game_wrong_number_of_players(self):
 
         view = f.get_view('terminal')
-        self.assertRaises(ValueError, f.prepare_game, range(6), view)
+        players = f.create_players_model(
+            'asdasd', None, None)
+        self.assertRaises(ValueError, f.prepare_game, players, view)
 
     def test_governor_order(self):
 
         view = f.get_view('terminal')
-        game = f.prepare_game(range(3), view)
+        players = f.create_players_model(
+            'asd', None, None)
+        game = f.prepare_game(players, view)
 
         order = game.get_player_orders(3)
 

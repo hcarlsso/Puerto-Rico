@@ -68,6 +68,9 @@ class Game:
         state['available_goods'] = dict(
             Counter([str(p) for p in self.available_goods])
         )
+        state['available_buildings'] = dict(
+            Counter([str(p) for p in self.available_buildings])
+        )
         return state
 
     def get_player_orders(self, n_players):
@@ -81,8 +84,6 @@ class Game:
         '''
         Main loop of game
         '''
-        # Give tiles
-        self.prepare_pre_start()
         # Prepare other stuff
         players_orders = self.get_player_orders(len(self.players))
 
@@ -168,52 +169,10 @@ class Game:
             else:
                 role.play_ordinary(player, self)
 
-
-    def prepare_pre_start(self):
-
-        # Give out money
-        for p in self.players:
-            p.doubloons = len(self.players) - 1
-
-        # Do indigo
-        indigo = ut.iterate_and_remove(
-            self.tiles_portal.plantations,
-            plant_types.Indigo()
-        )
-
-        # Take indigo and give to first player
-        self.players[0].recieve_island_tile(next(indigo))
-
-        # Take indigo and give to second player
-        self.players[1].recieve_island_tile(next(indigo))
-
-        n_players = len(self.players)
-
-        if n_players == 5:
-            # Third player gets indigo
-            self.players[2].recieve_island_tile(next(indigo))
-
-        # now the available island tiles should be reduced
-        # Do corn
-        corn = ut.iterate_and_remove(
-            self.tiles_portal.plantations,
-            plant_types.Corn()
-        )
-
-        if n_players == 3:
-            self.players[2].recieve_island_tile(next(corn))
-        elif n_players == 4:
-            self.players[2].recieve_island_tile(next(corn))
-            self.players[3].recieve_island_tile(next(corn))
-        else:
-            # five players
-            self.players[3].recieve_island_tile(next(corn))
-            self.players[4].recieve_island_tile(next(corn))
-
-        # Fill up tiles portal
-        self.tiles_portal.fill_display()
-
 class Player:
+    '''
+    Class what each player controls
+    '''
     def __init__(self, name, view, controller):
         self.doubloons = 0
         self.board = None

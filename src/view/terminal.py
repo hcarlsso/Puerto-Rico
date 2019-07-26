@@ -1,3 +1,5 @@
+# coding: utf-8
+
 class Player:
 
     def __init__(self):
@@ -46,6 +48,7 @@ class Game:
 
         print("Available victory points: " + str(state['remaining_victory_points']))
         self.view_goods(state['available_goods'])
+        self.view_buildings(state['available_buildings'])
 
     def view_player(self, player, tabs=0):
 
@@ -98,3 +101,11 @@ class Game:
         prefix_0 = self.prefix * (tabs + 1)
         for good in goods:
             print(prefix_0 + good + ": " + str(state[good]))
+
+    def view_buildings(self, state, tabs=0):
+        print("Available buildings:")
+
+        prefix_0 = self.prefix * (tabs + 1)
+
+        for building in sorted(state.keys()):
+            print(prefix_0 + building + ": " + str(state[building]))

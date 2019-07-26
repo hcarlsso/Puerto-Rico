@@ -53,13 +53,23 @@ def create_players(setup, view_mod, controller_mod):
     '''
 
     player_names = setup.get_player_names()
+
+    return create_players_model(
+        player_names,
+        view_mod.Player(),
+        controller_mod.Player()
+    )
+
+def create_players_model(player_names, view, controller):
+
     players = []
 
-
-    for i in range(len(player_names)):
-        p = mod.Player(player_names[i],
-                   view_mod.Player(),
-                   controller_mod.Player())
+    for p_name in player_names:
+        p = mod.Player(
+            p_name,
+            view,
+            controller
+        )
 
         # Add board empty board
         p.board = mod.Board()
@@ -120,33 +130,19 @@ def create_colonist_portal(n_players):
 
 def create_plantation_tiles():
 
-    island_tiles = []
-
-
-    island_tiles.extend(
-        [plant_types.Coffee() for i in range(8)]
-    )
-
-    island_tiles.extend(
-        [plant_types.Tobacco() for i in range(9)]
-    )
-
-    island_tiles.extend(
-        [plant_types.Corn() for i in range(10)]
-    )
-
-    island_tiles.extend(
-        [plant_types.Sugar() for i in range(11)]
-    )
-
-    island_tiles.extend(
-        [plant_types.Indigo() for i in range(12)]
-    )
+    island_tiles = [plant_types.Coffee() for i in range(8)] \
+        + [plant_types.Tobacco() for i in range(9)] \
+        + [plant_types.Corn() for i in range(10)] \
+        + [plant_types.Sugar() for i in range(11)] \
+        + [plant_types.Indigo() for i in range(12)]
 
     return island_tiles
 
 def create_tiles_portal(n_players):
-
+    '''
+    Create the object to handle the plantations. Number of tiles that is shown
+    is number of players plus one.
+    '''
     quarries = [plant_types.Quarry() for i in range(8)]
     tiles = create_plantation_tiles()
 
@@ -154,40 +150,39 @@ def create_tiles_portal(n_players):
 
 def create_buildings():
 
-    buildings = []
-
-    buildings.extend(
-        [building_types.IndigoPlant() for i in range(2)]
-    )
-
-    buildings.extend(
-        [building_types.SmallMarket() for i in range(2)]
-    )
+    buildings = [building_types.SmallIndigoPlant() for i in range(3)] \
+    + [building_types.SmallSugarMill() for i in range(3)] \
+    + [building_types.SmallMarket() for i in range(2)] \
+    + [building_types.Hacienda() for i in range(2)] \
+    + [building_types.ConstructionHut() for i in range(2)] \
+    + [building_types.SmallWarehouse() for i in range(2)] \
+    + [building_types.IndigoPlant() for i in range(2)] \
+    + [building_types.SugarMill() for i in range(2)] \
+    + [building_types.Hospice() for i in range(2)] \
+    + [building_types.Office() for i in range(2)] \
+    + [building_types.LargeMarket() for i in range(2)] \
+    + [building_types.LargeWarehouse() for i in range(2)] \
+    + [building_types.TobaccoStorage() for i in range(2)] \
+    + [building_types.CoffeeRoaster() for i in range(2)] \
+    + [building_types.Factory() for i in range(2)] \
+    + [building_types.University() for i in range(2)] \
+    + [building_types.Harbor() for i in range(2)] \
+    + [building_types.Wharf() for i in range(2)] \
+    + [building_types.GuildHall() for i in range(1)] \
+    + [building_types.Residence() for i in range(1)] \
+    + [building_types.Fortress() for i in range(1)] \
+    + [building_types.CustomsHouse() for i in range(1)] \
+    + [building_types.CityHall() for i in range(1)]
 
     return buildings
 
 def create_goods():
 
-    goods = []
-
-    goods.extend(
-        [good_types.Coffee() for i in range(9)]
-    )
-
-    goods.extend(
-        [good_types.Tobacco() for i in range(9)]
-    )
-
-    goods.extend(
-        [good_types.Corn() for i in range(10)]
-    )
-    goods.extend(
-        [good_types.Sugar() for i in range(11)]
-    )
-
-    goods.extend(
-        [good_types.Indigo() for i in range(11)]
-    )
+    goods = [good_types.Coffee() for i in range(9)] \
+        + [good_types.Tobacco() for i in range(9)] \
+        + [good_types.Corn() for i in range(10)] \
+        + [good_types.Sugar() for i in range(11)] \
+        + [good_types.Indigo() for i in range(11)]
 
     return goods
 
@@ -197,20 +192,59 @@ def prepare_game(players, view_mod):
     '''
 
     n_players = len(players)
+
+    # Give out money
+    for player in players:
+        player.doubloons = n_players - 1
+
+    tiles_portal = create_tiles_portal(n_players)
+    # Do indigo
+    indigo = ut.iterate_and_remove(
+        tiles_portal.plantations,
+        plant_types.Indigo()
+    )
+
+    # Take indigo and give to first player
+    players[0].recieve_island_tile(next(indigo))
+
+    # Take indigo and give to second player
+    players[1].recieve_island_tile(next(indigo))
+
+    if n_players == 5:
+        # Third player gets indigo
+        players[2].recieve_island_tile(next(indigo))
+
+    # now the available island tiles should be reduced
+    # Do corn
+    corn = ut.iterate_and_remove(
+        tiles_portal.plantations,
+        plant_types.Corn()
+    )
+
+    if n_players == 3:
+        players[2].recieve_island_tile(next(corn))
+    elif n_players == 4:
+        players[2].recieve_island_tile(next(corn))
+        players[3].recieve_island_tile(next(corn))
+    else:
+        # five players
+        players[3].recieve_island_tile(next(corn))
+        players[4].recieve_island_tile(next(corn))
+
+    # Fill up tiles portal
+    tiles_portal.fill_display()
+
     game = mod.Game(
         players,
         create_role_cards(n_players),
         create_cargo_ships(n_players),
         create_colonist_portal(n_players),
-        create_tiles_portal(n_players),
+        tiles_portal,
         create_victory_points(n_players),
         create_buildings(),
         create_goods(),
         view_mod.Game()
     )
-
-
-    game.N_plantation_tiles_show = n_players + 1
 
     return game
 
