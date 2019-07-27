@@ -1,8 +1,8 @@
 class AbstractRole:
     def __init__(self):
         self.doubloons = 0
-    def __str__(self):
-        return self.__class__.__name__ + " doubloons: {:d}".format(self.doubloons)
+    # def __str__(self):
+    #     return self.__class__.__name__ + " doubloons: {:d}".format(self.doubloons)
 
     def add_doublon(self):
         self.doubloons += 1
@@ -22,6 +22,8 @@ class Captain(AbstractRole):
     def play_ordinary(self):
         # Ship one type
         pass
+    def __str__(self):
+        return 'captain'
 
 class Trader(AbstractRole):
     def play_privilege(self):
@@ -31,6 +33,8 @@ class Trader(AbstractRole):
     def play_ordinary(self):
         # May sell in the trading house
         pass
+    def __str__(self):
+        return 'trader'
 
 class Prospector(AbstractRole):
     def play_privilege(self, player, game_state):
@@ -42,6 +46,8 @@ class Prospector(AbstractRole):
     def play_ordinary(self, player, game_state):
         # Nothing happens here
         pass
+    def __str__(self):
+        return 'prospector'
 
 class Settler(AbstractRole):
     def play_privilege(self, player, game_state):
@@ -58,6 +64,8 @@ class Settler(AbstractRole):
             player,
             quarry_option = False
         )
+    def __str__(self):
+        return 'settler'
 
 class Builder(AbstractRole):
     def play_privilege(self):
@@ -67,6 +75,8 @@ class Builder(AbstractRole):
     def play_ordinary(self):
         # Buy a building
         pass
+    def __str__(self):
+        return 'builder'
 
 class Mayor(AbstractRole):
     def play_privilege(self):
@@ -76,6 +86,8 @@ class Mayor(AbstractRole):
     def play_ordinary(self):
         # Take one colonist
         pass
+    def __str__(self):
+        return 'mayor'
 
 class Craftsman(AbstractRole):
     def play_privilege(self):
@@ -85,3 +97,5 @@ class Craftsman(AbstractRole):
     def play_ordinary(self):
         # Take goods
         pass
+    def __str__(self):
+        return 'craftsman'

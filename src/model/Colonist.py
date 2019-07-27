@@ -7,17 +7,17 @@ class Portal:
         self.ship = ship
         self.supply = supply
 
-    def fill_ship(self, N_colonists_request):
+    def fill_ship(self, n_colonists_request):
 
         # if requested is higher than existing
-        if N_colonists_request > len(self.supply):
-            N_colonists = len(self.supply)
+        if n_colonists_request > len(self.supply):
+            n_colonists = len(self.supply)
         else:
-            N_colonists = N_colonists_request
+            n_colonists = n_colonists_request
 
-        self.ship.fill_colonists(self.supply[:N_colonists])
+        self.ship.fill_colonists(self.supply[:n_colonists])
         # Remove from supply
-        del self.supply[:N_colonists]
+        del self.supply[:n_colonists]
 
     def empty_ship(self):
 

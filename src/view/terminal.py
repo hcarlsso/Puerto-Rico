@@ -69,7 +69,7 @@ class Game:
 
         print(prefix + 'Tiles:')
         for (building, state) in board['island_spaces']:
-            if state['occupied']:
+            if state == 1:
                 string = 'Occupied'
             else:
                 string = 'Unoccupied'
@@ -105,7 +105,32 @@ class Game:
     def view_buildings(self, state, tabs=0):
         print("Available buildings:")
 
+        mapping = {
+            'city_hall' : 'City Hall',
+            'coffee_roaster' : 'Coffee Roaster',
+            'construction_hut' : 'Construction Hut',
+            'customs_house' : 'Customs House',
+            'factory':'Factory',
+            'fortress' :'Fortress',
+            'guild_hall' : 'Guild Hall',
+            'hacienda' : 'Hacienda',
+            'harbor' : 'Harbor',
+            'hospice' : 'Hospice',
+            'indigo_plant' :'Indigo Plant',
+            'large_market':'Large Market',
+            'large_warehouse' :'Large Warehouse',
+            'office' : 'Office',
+            'residence' : 'Residence',
+            'small_indigo_plant' : 'Small Indigo Plant',
+            'small_market' : 'Small Market',
+            'small_sugar_mill' : 'Small Sugar Mill',
+            'small_warehouse' : 'Small Warehouse',
+            'sugar_mill' : 'Sugar Mill',
+            'tobacco_storage' : 'Tobacco Storage',
+            'university' : 'University',
+            'wharf' : 'Wharf'
+        }
         prefix_0 = self.prefix * (tabs + 1)
 
-        for building in sorted(state.keys()):
-            print(prefix_0 + building + ": " + str(state[building]))
+        for key in sorted(mapping.keys()):
+            print(prefix_0 + mapping[key] + ": " + str(state[key]))

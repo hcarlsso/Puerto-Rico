@@ -1,9 +1,148 @@
 from unittest.mock import MagicMock
 import unittest as ut
 import factory as f
+import Utils as utils
 from controller import QuitGame
 
 class TestGame(ut.TestCase):
+
+    def test_load_game_from_state(self):
+
+        state_input = {
+            'players': [ # this is the order of playing roles
+                {
+                    'name':'a',
+                    'doubloons' : 2,
+                    'victory_points': 1,
+                    'is_governor' : True,
+                    'have_played_role': False,
+                    'unemployed_colonists': 0,
+                    'board': {
+                        'city_spaces' : [
+                            ('indigo_plant', 0)
+                        ],
+                        'island_spaces' : [
+                            ('indigo', 0)
+                        ],
+                    },
+                    'goods': {
+                        'coffee': 1,
+                        'corn': 1,
+                        'indigo': 1,
+                        'sugar': 1,
+                        'tobacco': 1,
+                    },
+                },
+                {
+                    'name':'b',
+                    'is_governor' : False,
+                    'have_played_role': False,
+                    'doubloons' : 2,
+                    'victory_points': 0,
+                    'unemployed_colonists': 0,
+                    'board': {
+                        'city_spaces' : [],
+                        'island_spaces' : [
+                            ('indigo', 0)
+                        ],
+                    },
+                    'goods': {},
+                },
+                {
+                    'name':'c',
+                    'doubloons' : 2,
+                    'is_governor' : False,
+                    'have_played_role': False,
+                    'victory_points': 0,
+                    'unemployed_colonists': 0,
+                    'board': {
+                        'city_spaces' : [],
+                        'island_spaces' : [
+                            ('corn', 0)
+                        ],
+                    },
+                    'goods': {},
+                }
+            ],
+            'current_role' : 'trader',
+            'roles_doubloon_count' : [ # to account for multiple prospectors
+                ('settler', 1),
+                ('captain', 0),
+                ('mayor', 0),
+                ('craftsman', 1)
+            ],
+            'trading_house': ['corn'],
+            'colonist': {
+                'ship': 3,
+                'supply': 52
+            },
+            'tiles': {
+                'on_display': ['corn', 'indigo', 'indigo', 'sugar'],
+            },
+            'cargo_ships' : {
+                4 : [],
+                5 : ['corn'],
+                6 : ['indigo', 'indigo']
+            }
+        }
+
+        controller = ut.mock.MagicMock()
+        view = ut.mock.MagicMock()
+
+        game = f.load_game_from_state(state_input, view, controller)
+
+        state_out = game.get_total_state()
+
+        # The input that is induced
+        state_extended = {
+            'available_goods': {
+                'coffee': 8,
+                'corn': 7,
+                'indigo': 8,
+                'sugar': 10,
+                'tobacco': 8
+            },
+            'available_buildings': {
+                'city_hall': 1,
+                'coffee_roaster': 3,
+                'construction_hut': 2,
+                'customs_house': 1,
+                'factory': 2,
+                'fortress': 1,
+                'guild_hall': 1,
+                'hacienda': 2,
+                'harbor': 2,
+                'hospice': 2,
+                'indigo_plant': 1,
+                'large_market': 2,
+                'large_warehouse': 2,
+                'office': 2,
+                'residence': 1,
+                'small_indigo_plant': 3,
+                'small_market': 2,
+                'small_sugar_mill': 3,
+                'small_warehouse': 2,
+                'sugar_mill': 2,
+                'tobacco_storage': 3,
+                'university': 2,
+                'wharf': 2
+            },
+            'tiles': {
+                'plantations': 43,
+                'quarries': 8
+            },
+            'remaining_victory_points': 74
+        }
+
+
+        state_ref = utils.deep_dict_merge(state_input, state_extended)
+
+        self.maxDiff = None
+        # import pdb; pdb.set_trace()
+        self.assertDictEqual(state_out, state_ref)
+
+        # for k in state_out:
+        #     self.assertDictEqual(state_out[k], state_ref[k])
 
     def test_get_total_state(self):
 
@@ -11,7 +150,7 @@ class TestGame(ut.TestCase):
 
         setup = ut.mock.MagicMock()
         setup.get_player_names = ut.mock.MagicMock(
-            return_value = ['a', 'b','c']
+            return_value=['a', 'b', 'c']
         )
 
         p1 = MagicMock()
@@ -19,50 +158,58 @@ class TestGame(ut.TestCase):
         p3 = MagicMock()
 
         controller = ut.mock.MagicMock()
-        controller.Player.side_effect = [p1, p2,p3]
-        controller.Setup = ut.mock.MagicMock(return_value = setup)
+        controller.Player.side_effect = [p1, p2, p3]
+        controller.Setup = ut.mock.MagicMock(return_value=setup)
 
         game = f.create_game(view, controller)
 
         self.maxDiff = None
-        # import pprint as pp
-        # pp.pprint(game.get_total_state())
         ref = {
             'players': [
                 {'name':'a',
                  'doubloons' : 2,
                  'victory_points': 0,
+                 'is_governor' : False,
+                 'have_played_role': False,
                  'unemployed_colonists': 0,
                  'board': {
                      'city_spaces' : [],
-                     'island_spaces' : [('Indigo', {'occupied': False})],
-                 }
+                     'island_spaces' : [('indigo', 0)],
+                 },
+                 'goods' : {},
                 },
                 {'name':'b',
                  'doubloons' : 2,
                  'victory_points': 0,
+                 'is_governor' : False,
+                 'have_played_role': False,
                  'unemployed_colonists': 0,
                  'board': {
                      'city_spaces' : [],
-                     'island_spaces' : [('Indigo', {'occupied': False})],
-                 }
+                     'island_spaces' : [('indigo', 0)],
+                 },
+                 'goods' : {},
                 },
                 {
                     'name':'c',
                     'doubloons' : 2,
                     'victory_points': 0,
+                    'is_governor' : False,
+                    'have_played_role': False,
                     'unemployed_colonists': 0,
                     'board': {
                         'city_spaces' : [],
-                        'island_spaces' : [('Corn', {'occupied': False})],
-                    }
+                        'island_spaces' : [('corn', 0)],
+                    },
+                    'goods' : {},
                 }
             ],
             'colonist': {
-                'ship': 0, 'supply': 55
+                'ship': 3,
+                'supply': 52
             },
             'tiles': {
-                'on_display': ['Corn', 'Indigo', 'Indigo', 'Sugar'],
+                'on_display': ['corn', 'indigo', 'indigo', 'sugar'],
                 'plantations': 43,
                 'quarries': 8
             },
@@ -75,30 +222,40 @@ class TestGame(ut.TestCase):
                 'tobacco': 9
             },
             'available_buildings': {
-                'City Hall': 1,
-                'Coffee Roaster': 2,
-                'Construction Hut': 2,
-                'Customs House': 1,
-                'Factory': 2,
-                'Fortress': 1,
-                'Guild Hall': 1,
-                'Hacienda': 2,
-                'Harbor': 2,
-                'Hospice': 2,
-                'Indigo Plant': 2,
-                'Large Market': 2,
-                'Large Warehouse': 2,
-                'Office': 2,
-                'Residence': 1,
-                'Small Indigo Plant': 3,
-                'Small Market': 2,
-                'Small Sugar Mill': 3,
-                'Small Warehouse': 2,
-                'Sugar Mill': 2,
-                'Tobacco Storage': 2,
-                'University': 2,
-                'Wharf': 2
-            }
+                'city_hall': 1,
+                'coffee_roaster': 3,
+                'construction_hut': 2,
+                'customs_house': 1,
+                'factory': 2,
+                'fortress': 1,
+                'guild_hall': 1,
+                'hacienda': 2,
+                'harbor': 2,
+                'hospice': 2,
+                'indigo_plant': 2,
+                'large_market': 2,
+                'large_warehouse': 2,
+                'office': 2,
+                'residence': 1,
+                'small_indigo_plant': 3,
+                'small_market': 2,
+                'small_sugar_mill': 3,
+                'small_warehouse': 2,
+                'sugar_mill': 2,
+                'tobacco_storage': 3,
+                'university': 2,
+                'wharf': 2
+            },
+            'trading_house': [],
+            'roles_doubloon_count': [('captain', 0),
+                                     ('trader', 0),
+                                     ('settler', 0),
+                                     ('builder', 0),
+                                     ('mayor', 0),
+                                     ('craftsman', 0)],
+            'current_role' : None,
+            'cargo_ships' : {4:[], 5:[], 6:[]}
+
         }
         out = game.get_total_state()
         tiles_test = out.pop('tiles')
@@ -110,7 +267,7 @@ class TestGame(ut.TestCase):
 
         self.assertEqual(len(tiles_test['on_display']), 4)
         for t in tiles_test['on_display']:
-            self.assertIn(t, ['Corn', 'Indigo', 'Indigo', 'Sugar', 'Tobacco', 'Coffee'])
+            self.assertIn(t, ['corn', 'indigo', 'indigo', 'sugar', 'tobacco', 'coffee'])
 
 
     def test_play_game(self):
@@ -120,18 +277,18 @@ class TestGame(ut.TestCase):
 
         setup = ut.mock.MagicMock()
         setup.get_player_names = ut.mock.MagicMock(
-            return_value = ['a', 'b','c']
+            return_value=['a', 'b', 'c']
         )
 
-        p1 = MagicMock()
-        p1.select_index = MagicMock(side_effect = QuitGame())
-        p2 = MagicMock()
-        p2.select_index = MagicMock(return_value = 0)
-        p3 = MagicMock()
-        p3.select_index = MagicMock(return_value = 0)
+        p_1 = MagicMock()
+        p_1.select_index = MagicMock(side_effect=QuitGame())
+        p_2 = MagicMock()
+        p_2.select_index = MagicMock(return_value=0)
+        p_3 = MagicMock()
+        p_3.select_index = MagicMock(return_value=0)
 
-        controller.Player.side_effect = [p1, p2,p3]
-        controller.Setup = ut.mock.MagicMock(return_value = setup)
+        controller.Player.side_effect = [p_1, p_2, p_3]
+        controller.Setup = ut.mock.MagicMock(return_value=setup)
 
         game = f.create_game(view, controller)
 
@@ -140,26 +297,22 @@ class TestGame(ut.TestCase):
 
     def test_create_game_wrong_number_of_players(self):
 
-        view = f.get_view('terminal')
-        players = f.create_players_model(
-            'asdasd', None, None)
-        self.assertRaises(ValueError, f.prepare_game, players, view)
+        self.assertRaises(ValueError, f.create_players_model, 'asdasd', None,None)
 
     def test_governor_order(self):
 
         view = f.get_view('terminal')
         players = f.create_players_model(
             'asd', None, None)
-        game = f.prepare_game(players, view)
+        game = f.prepare_game_start(players, view)
 
         order = game.get_player_orders(3)
 
-
         # The orders
-        self.assertListEqual(next(order), [0,1,2])
-        self.assertListEqual(next(order), [1,2,0])
-        self.assertListEqual(next(order), [2,0,1])
-        self.assertListEqual(next(order), [0,1,2])
+        self.assertListEqual(next(order), [0, 1, 2])
+        self.assertListEqual(next(order), [1, 2, 0])
+        self.assertListEqual(next(order), [2, 0, 1])
+        self.assertListEqual(next(order), [0, 1, 2])
 
     def test_create_players(self):
         setup = ut.mock.Mock()
@@ -179,7 +332,7 @@ class TestGame(ut.TestCase):
 class TestColonist(ut.TestCase):
 
     def test(self):
-        portal = f.create_colonist_portal(3)
+        portal = f.create_colonist_portal_pre_start(3)
 
         self.assertDictEqual(
             portal.get_state(), {'ship': 0, 'supply': 55}
@@ -211,7 +364,7 @@ class TestPlantation(ut.TestCase):
 
     def test(self):
 
-        portal = f.create_tiles_portal(3)
+        portal = f.create_tiles_portal_from_start(3)
         self.assertDictEqual(
             portal.get_state(),
             {'on_display': [],
@@ -223,14 +376,14 @@ class TestPlantation(ut.TestCase):
 
         self.assertDictEqual(
             portal.get_state(),
-            {'on_display': ['Coffee', 'Corn', 'Corn', 'Indigo'],
+            {'on_display': ['coffee', 'corn', 'corn', 'indigo'],
              'plantations': 46, 'quarries': 8}
         )
 
         q = portal.take_quarry()
         self.assertDictEqual(
             portal.get_state(),
-            {'on_display': ['Coffee', 'Corn', 'Corn', 'Indigo'],
+            {'on_display': ['coffee', 'corn', 'corn', 'indigo'],
              'plantations': 46, 'quarries': 7}
         )
 
@@ -250,9 +403,9 @@ class TestPlantation(ut.TestCase):
         )
 
 
-    def test_choose_plantaion(self):
+    def test_choose_plantation(self):
 
-        portal = f.create_tiles_portal(3)
+        portal = f.create_tiles_portal_from_start(3)
         self.assertDictEqual(
             portal.get_state(),{'on_display': [], 'plantations': 50, 'quarries': 8}
         )
@@ -262,7 +415,7 @@ class TestPlantation(ut.TestCase):
 
         self.assertDictEqual(
             portal.get_state(),
-            {'on_display': ['Coffee', 'Corn', 'Corn', 'Indigo'],
+            {'on_display': ['coffee', 'corn', 'corn', 'indigo'],
              'plantations': 46, 'quarries': 8}
         )
         # Choose last option
@@ -272,13 +425,13 @@ class TestPlantation(ut.TestCase):
         portal.play_selection(player)
         self.assertDictEqual(
             portal.get_state(),
-            {'on_display': ['Coffee', 'Corn', 'Corn'],
+            {'on_display': ['coffee', 'corn', 'corn'],
              'plantations': 46, 'quarries': 8}
         )
 
-    def test_choose_plantaion_quarry(self):
+    def test_choose_plantation_quarry(self):
 
-        portal = f.create_tiles_portal(3)
+        portal = f.create_tiles_portal_from_start(3)
         self.assertDictEqual(
             portal.get_state(),
             {'on_display': [], 'plantations': 50, 'quarries': 8}
@@ -289,17 +442,17 @@ class TestPlantation(ut.TestCase):
 
         self.assertDictEqual(
             portal.get_state(),
-            {'on_display': ['Coffee', 'Corn', 'Corn', 'Indigo'],
+            {'on_display': ['coffee', 'corn', 'corn', 'indigo'],
              'plantations': 46, 'quarries': 8}
         )
         # Choose last option
         player = ut.mock.MagicMock()
         player.choose_plantation = lambda x: x[:-1]
 
-        portal.play_selection(player, quarry_option = True)
+        portal.play_selection(player, quarry_option=True)
         self.assertDictEqual(
             portal.get_state(),
-            {'on_display': ['Coffee', 'Corn', 'Corn', 'Indigo'],
+            {'on_display': ['coffee', 'corn', 'corn', 'indigo'],
              'plantations': 46, 'quarries': 7}
         )
 

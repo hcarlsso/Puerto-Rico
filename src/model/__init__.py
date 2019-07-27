@@ -38,20 +38,22 @@ class Game:
     Root object of game
     '''
     def __init__(self, players, roles, cargo_ships, colonist_portal,
-                 tiles_portal, victory_points, buildings, goods, view):
+                 tiles_portal, victory_points, buildings, goods, trading_house,
+                 view):
 
         self.players = players
         self.roles = roles
+        self.current_role = None
 
         # The state of the game
         self.cargo_ships = cargo_ships
         self.colonist_portal = colonist_portal
         self.tiles_portal = tiles_portal
-
         self.victory_points = victory_points
-
         self.available_buildings = buildings
         self.available_goods = goods
+        self.trading_house = trading_house
+
         self.view = view
 
         # Always first player have index
@@ -65,12 +67,20 @@ class Game:
         state['colonist'] = self.colonist_portal.get_state()
         state['tiles'] = self.tiles_portal.get_state()
         state['remaining_victory_points'] = len(self.victory_points)
-        state['available_goods'] = dict(
-            Counter([str(p) for p in self.available_goods])
-        )
+        state['available_goods'] = {
+            str(k) : len(v) for (k,v) in self.available_goods.items()
+        }
         state['available_buildings'] = dict(
             Counter([str(p) for p in self.available_buildings])
         )
+        state['trading_house'] = self.trading_house.get_state()
+        state['roles_doubloon_count'] = [
+            (str(r), r.doubloons) for r in self.roles
+        ]
+        state['current_role'] = str(self.current_role) if self.current_role is not None else None
+        state['cargo_ships'] = {
+            cap: ship.get_state() for (cap, ship) in self.cargo_ships.items()
+        }
         return state
 
     def get_player_orders(self, n_players):
@@ -179,9 +189,15 @@ class Player:
         self.name = name
         self.victory_points = []
         self.unemployed_colonists = []
+        self.goods = []
+        self.is_governor = False
+        self.have_played_role = False
 
         self.view = view
         self.controller = controller
+
+    def add_goods(self, goods):
+        self.goods.extend(goods)
 
     def get_state(self):
 
@@ -190,7 +206,12 @@ class Player:
             doubloons=self.doubloons,
             board=self.board.get_state(),
             victory_points=len(self.victory_points),
-            unemployed_colonists=len(self.unemployed_colonists)
+            unemployed_colonists=len(self.unemployed_colonists),
+            is_governor=self.is_governor,
+            have_played_role=self.have_played_role,
+            goods=dict(
+                Counter([str(g) for g in self.goods])
+            )
         )
 
     def recieve_island_tile(self, tile):
@@ -269,12 +290,44 @@ class Board:
         return self.get_available_space() == 0
 
 class VictoryPoint:
-
     def __init__(self):
         pass
 
 
 class CargoShip:
-    def __init__(self, N_spaces):
+    def __init__(self, n_cargo_max):
+        self.cargo = []
+        self.n_cargo_max = n_cargo_max
 
-        self.spaces = [None]*N_spaces
+    def available_capacity(self):
+        return self.n_cargo_max - len(self.cargo)
+
+    def is_ship_full(self):
+        return len(self.cargo) == self.n_cargo_max
+
+    def load(self, goods):
+        self.cargo.extend(goods)
+        if len(self.cargo) > self.n_cargo_max:
+            raise ValueError('Too Much')
+    def flush_ship(self):
+        self.cargo = []
+    def get_state(self):
+        return [str(good) for good in self.cargo]
+
+class TradingHouse:
+    def __init__(self):
+        self.spaces = []
+
+    def add_good(self, good):
+        if len(self.spaces) < 4:
+            self.spaces.append(good)
+        else:
+            raise ValueError('House is full')
+    def flush(self):
+        temp = self.spaces
+        self.spaces = []
+        return temp
+    def is_full(self):
+        return len(self.spaces) == 4
+    def get_state(self):
+        return [str(g) for g in self.spaces]

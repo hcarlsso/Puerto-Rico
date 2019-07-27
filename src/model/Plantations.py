@@ -71,12 +71,10 @@ class IslandTile:
         self.filled = colonist
 
     def get_state(self):
-        state = {}
         if self.filled is None:
-            state['occupied'] = False
+            return 0
         else:
-            state['occupied'] = True
-        return state
+            return 1
 
     def take_colonist(self):
         '''
@@ -94,32 +92,32 @@ class IslandTile:
             return False
 
 class Quarry(IslandTile):
-
     def __init__(self):
         pass
-
+    def __str__(self):
+        return 'quarry'
 class Coffee(IslandTile):
     def __init__(self):
         super().__init__()
     def __str__(self):
-        return 'Coffee'
+        return 'coffee'
 class Tobacco(IslandTile):
     def __init__(self):
         super().__init__()
     def __str__(self):
-        return 'Tobacco'
+        return 'tobacco'
 class Corn(IslandTile):
     def __init__(self):
         super().__init__()
     def __str__(self):
-        return 'Corn'
+        return 'corn'
 class Sugar(IslandTile):
     def __init__(self):
         super().__init__()
     def __str__(self):
-        return 'Sugar'
+        return 'sugar'
 class Indigo(IslandTile):
     def __init__(self):
         super().__init__()
     def __str__(self):
-        return 'Indigo'
+        return 'indigo'

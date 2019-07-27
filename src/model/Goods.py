@@ -1,7 +1,6 @@
 class AbstractGood:
     pass
 
-
 class Coffee(AbstractGood):
     def __init__(self):
         pass
