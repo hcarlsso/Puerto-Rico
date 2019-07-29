@@ -22,6 +22,37 @@ class Player:
             )
         )
 
+    def display_question_colonist_from_supply(self, name):
+        print('Does player {0} want colonist from supply?'.format(name))
+
+    def display_reception_colonists(self, name, n_colonists):
+        if n_colonists > 1:
+            print('Player {0} received {1} colonists'.format(name, n_colonists))
+        else:
+            print('Player {0} received {1} colonist'.format(name, n_colonists))
+
+    def ask_unload_san_juan(self, name, n_colonists):
+        print(
+            'Player {0} have {1} colonists in San Juan, place them?'.format(
+                name,
+                n_colonists
+            )
+        )
+    def ask_unload_any_building(self, name, n_colonists):
+        print(
+            'Player {0} have {1} colonists on board, unload them?'.format(
+                name,
+                n_colonists
+            )
+        )
+    def show_spaces(self, name, empty_spaces):
+        print(
+            'Player {0} choose index:'.format(
+                name
+            )
+        )
+        for (i, space) in enumerate(empty_spaces):
+            print('Index {0}: '.format(i+1) + str(space))
 class Setup:
     '''
     Should contain more

@@ -253,16 +253,16 @@ def create_all_objects_of_type(count, create_func):
 def create_colonist_portal_pre_start(n_players):
 
     colonists = (y for y in create_colonists(n_players))
-    return create_colonist_portal(0, colonists)
+    return create_colonist_portal(0, colonists, n_players)
 
-def create_colonist_portal(n_ship, colonists):
+def create_colonist_portal(n_ship, colonists, n_players):
 
     ship = col.Ship()
     ship.fill_colonists(
         [next(colonists) for i in range(n_ship)]
     )
     supply = list(colonists)
-    portal = col.Portal(ship, supply)
+    portal = col.Portal(ship, supply, n_players)
 
     return portal
 
@@ -345,7 +345,8 @@ def prepare_game_start(players, view_mod):
 
     colonist_portal = create_colonist_portal(
         n_players,
-        all_colonists
+        all_colonists,
+        n_players
     )
 
     cargo_ships = create_cargo_ships(n_players)
@@ -475,7 +476,8 @@ def load_game_from_state(state, view, controller):
 
     colonist_portal = create_colonist_portal(
         state['colonist']['ship'],
-        all_colonists
+        all_colonists,
+        n_players
     )
 
     on_display = [

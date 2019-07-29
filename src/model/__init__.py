@@ -170,14 +170,16 @@ class Game:
         '''
         Play a single role card.
         '''
+        if role.need_all_players():
+            role.play_with_all_players(order_player, self)
+        else:
+            for i, player in enumerate(order_player):
 
-        for i, player in enumerate(order_player):
-
-            # First player get privilege
-            if i == 0:
-                role.play_privilege(player, self)
-            else:
-                role.play_ordinary(player, self)
+                # First player get privilege
+                if i == 0:
+                    role.play(player, self, privilege=True)
+                else:
+                    role.play(player, self)
 
 class Player:
     '''
@@ -188,7 +190,7 @@ class Player:
         self.board = None
         self.name = name
         self.victory_points = []
-        self.unemployed_colonists = []
+        self.unemployed_colonists = [] # Also known as San Juan
         self.goods = []
         self.is_governor = False
         self.have_played_role = False
@@ -243,6 +245,79 @@ class Player:
         # Return remaining
         return options
 
+    def recieve_colonists(self, colonists):
+        '''
+        Receive a list of colonists.
+
+        Implement code for how to place them
+        '''
+        self.view.display_reception_colonists(self.name, len(colonists))
+        # Check if colonists in San Juan should be place
+        if self.unemployed_colonists:
+            self.view.ask_unload_san_juan(
+                self.name,
+                len(self.unemployed_colonists)
+            )
+            number_of_colonists_from_san_juan = self.controller.get_a_number(
+                0,
+                len(self.unemployed_colonists)
+            )
+            if number_of_colonists_from_san_juan > 0:
+                colonists.extend(
+                    [self.unemployed_colonists.pop()
+                     for i in range(number_of_colonists_from_san_juan)]
+                )
+
+        # Check if any spaces should be unloaded
+        n_colonists_board = self.board.get_number_of_colonists()
+        if n_colonists_board > 0:
+            self.view.ask_unload_any_building(
+                self.name,
+                n_colonists_board
+            )
+            resp = self.controller.get_a_number(0, n_colonists_board)
+            if resp == n_colonists_board:
+                #unload all
+                occupied_spaces = self.board.get_occupied_spaces()
+                colonists.extend(
+                    [s.take_colonist()  for s in occupied_spaces]
+                )
+            elif resp > 0:
+                occupied_spaces = self.board.get_occupied_spaces()
+                for i in range(resp):
+                    self.view.show_spaces(self.name, occupied_spaces)
+                    index = self.controller.select_index()
+                    space_to_unload = occupied_spaces.pop(index)
+                    colonists.append(
+                        space_to_unload.take_colonist()
+                    )
+            # If zero do nothing
+
+        # Place the colonists, must place if possible
+        empty_spaces = self.board.get_empty_spaces()
+        for i in range(len(empty_spaces)):
+            self.view.show_spaces(self.name, empty_spaces)
+            index = self.controller.select_index()
+            building_to_load = empty_spaces.pop(index)
+            colonist_to_load = colonists.pop()
+
+            building_to_load.add_colonist(colonist_to_load)
+
+        # The excess to San Juan
+        self.unemployed_colonists.extend(colonists)
+    def get_empty_city_spaces(self):
+        '''
+        Return number of empty city spaces
+        '''
+        return 0
+    def wants_colonist_from_supply(self):
+        '''
+        Display and ask questions
+        '''
+        self.view.display_question_colonist_from_supply(self.name)
+        return self.controller.get_true_or_false()
+
+
 class Board:
     '''
     The board each player has.
@@ -265,6 +340,57 @@ class Board:
                 for p in self.city_spaces
             ]
         )
+    def get_occupied_spaces(self):
+        occupied_spaces = []
+        for p in self.island_spaces:
+            if p.get_number_of_colonists() > 0:
+                occupied_spaces.append(p)
+
+        for b in self.city_spaces:
+            capacity = b.get_number_of_colonists()
+            for i in range(capacity):
+                occupied_spaces.append(b)
+
+        return occupied_spaces
+    def get_empty_spaces(self):
+        '''
+        Empty spaces including multiple on a single production building
+        '''
+        empty_spaces = []
+        for p in self.island_spaces:
+            if p.get_number_of_colonists() == 0:
+                empty_spaces.append(p)
+
+        for b in self.city_spaces:
+            capacity = b.colonist_capacity - b.get_number_of_colonists()
+            for i in range(capacity):
+                empty_spaces.append(b)
+
+        return empty_spaces
+    def get_number_of_unoccupied_spaces(self):
+        number = 0
+        for p in self.island_spaces:
+            if p.get_number_of_colonists() == 0:
+                number += 1
+
+        for b in self.city_spaces:
+            number += b.colonist_capacity - b.get_number_of_colonists()
+
+        return number
+    def get_occupied_buildings(self):
+        return [
+            (str(p), p.get_number_of_colonists()) for p in self.island_spaces if
+            p.get_number_of_colonists() > 1
+        ] + [
+            (str(p), p.get_number_of_colonists()) for p in self.city_spaces if
+            p.get_number_of_colonists() > 1
+        ]
+    def get_number_of_colonists(self):
+        return  sum([
+            p.get_number_of_colonists() for p in self.island_spaces
+        ]) + sum([
+            p.get_number_of_colonists() for p in self.city_spaces
+        ])
 
     def set_island_tile(self, tile):
         # Each tile has space 1

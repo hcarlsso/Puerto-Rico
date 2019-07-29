@@ -13,6 +13,14 @@ class Player:
         inp = self.display_question(text)
         return int(inp) - 1
 
+    def get_true_or_false(self):
+        text = 'y/n?'
+        while True:
+            resp = self.display_question(text)
+            if resp == 'y':
+                return True
+            if resp == 'n':
+                return False
     def display_question(self, text):
         '''
         Do the command input
@@ -23,10 +31,18 @@ class Player:
             if resp == 'q':
                 raise QuitGame
             elif resp == 's':
+                # not implemented yet
                 pass
             else:
                 break
         return resp
+    def get_a_number(self, n_start, n_end):
+        text = 'How many? [{0}-{1}]'.format(n_start, n_end)
+        while True:
+            inp = self.display_question(text)
+            if inp in range(n_start, n_end + 1):
+                break
+        return int(inp)
 
 class Setup:
 

@@ -3,6 +3,8 @@ class AbstractBuilding:
         # Fill with colonists
         self.occupation = []
 
+    def add_colonist(self, colonist):
+        self.occupation.append(colonist)
     def add_colonists(self, colonists):
         '''
         Expects a list of colonists
@@ -12,6 +14,11 @@ class AbstractBuilding:
         else:
             raise ValueError('Incorrect')
 
+    def get_number_of_colonists(self):
+        return len(self.occupation)
+
+    def take_colonist(self):
+        return self.occupation.pop()
 class ProductionBuilding(AbstractBuilding):
     def __init__(self):
         # All production buildings take two space

@@ -67,6 +67,8 @@ class IslandTile:
     def __init__(self):
         self.filled = None
 
+    def add_colonist(self, colonist):
+        self.occupy(colonist)
     def occupy(self, colonist):
         self.filled = colonist
 
@@ -83,6 +85,8 @@ class IslandTile:
         temp = self.filled
         self.filled = None
         return temp
+    def get_number_of_colonists(self):
+        return self.get_state()
 
     def __eq__(self, other):
 

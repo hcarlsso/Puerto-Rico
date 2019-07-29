@@ -359,7 +359,21 @@ class TestColonist(ut.TestCase):
         self.assertEqual(len(list(portal.empty_ship())), 45)
         self.assertTrue(portal.is_game_over())
 
+    def test_unload_ship(self):
 
+        portal = f.create_colonist_portal_pre_start(3)
+        portal.fill_ship(7)
+
+        colonists = portal.get_colonists_from_ship()
+
+
+        self.assertEqual(len(colonists[0]), 3)
+        self.assertEqual(len(colonists[1]), 2)
+        self.assertEqual(len(colonists[2]), 2)
+
+        # Ensure it is empty
+        state = portal.get_state()
+        self.assertEqual(state['ship'], 0)
 class TestPlantation(ut.TestCase):
 
     def test(self):
