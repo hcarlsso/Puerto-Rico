@@ -34,7 +34,10 @@ class AbstractBuilding:
         else:
             raise ValueError('No colonist to take.')
     def get_state(self):
-        return len(self.occupation)
+        return {
+            'occupancy' : len(self.occupation),
+            'capacity' : self.colonist_capacity
+        }
 
     def __eq__(self, other):
         if str(self) == str(other):
@@ -43,7 +46,7 @@ class AbstractBuilding:
             return False
 
 class AbstractCityBuilding(AbstractBuilding):
-    def __init__(self, colonist_capacity, cost, vp, quarries, space=2):
+    def __init__(self, colonist_capacity, cost, vp, quarries, space=1):
 
         self.cost = cost
         self.victory_points = vp
@@ -200,30 +203,30 @@ class Wharf(AbstractCityBuilding):
 
 class GuildHall(AbstractCityBuilding):
     def __init__(self):
-        super().__init__(1, 10, 4, 4, space=4)
+        super().__init__(1, 10, 4, 4, space=2)
     def __str__(self):
         return 'guild_hall'
 
 class Residence(AbstractCityBuilding):
     def __init__(self):
-        super().__init__(1, 10, 4, 4, space=4)
+        super().__init__(1, 10, 4, 4, space=2)
     def __str__(self):
         return 'residence'
 
 class Fortress(AbstractCityBuilding):
     def __init__(self):
-        super().__init__(1, 10, 4, 4, space=4)
+        super().__init__(1, 10, 4, 4, space=2)
     def __str__(self):
         return 'fortress'
 
 class CustomsHouse(AbstractCityBuilding):
     def __init__(self):
-        super().__init__(1, 10, 4, 4, space=4)
+        super().__init__(1, 10, 4, 4, space=2)
     def __str__(self):
         return 'customs_house'
 
 class CityHall(AbstractCityBuilding):
     def __init__(self):
-        super().__init__(1, 10, 4, 4, space=4)
+        super().__init__(1, 10, 4, 4, space=2)
     def __str__(self):
         return 'city_hall'

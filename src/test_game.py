@@ -174,9 +174,19 @@ class TestGame(ut.TestCase):
                  'unemployed_colonists': 0,
                  'board': {
                      'city_spaces' : [],
-                     'island_spaces' : [('indigo', 0)],
+                     'island_spaces' : [('indigo', {'capacity': 1, 'occupancy': 0})],
+                     'space_occupancy_city': 0,
+                     'space_occupancy_city_max': 12,
+                     'space_occupancy_plantation': 1,
+                     'space_occupancy_plantation_max': 12,
                  },
-                 'goods' : {},
+                 'goods' : {
+                     'corn': 0,
+                     'indigo': 0,
+                     'sugar': 0,
+                     'tobacco': 0,
+                     'coffee' : 0
+                 },
                 },
                 {'name':'b',
                  'doubloons' : 2,
@@ -186,9 +196,19 @@ class TestGame(ut.TestCase):
                  'unemployed_colonists': 0,
                  'board': {
                      'city_spaces' : [],
-                     'island_spaces' : [('indigo', 0)],
+                     'island_spaces' : [('indigo', {'capacity': 1, 'occupancy': 0})],
+                     'space_occupancy_city': 0,
+                     'space_occupancy_city_max': 12,
+                     'space_occupancy_plantation': 1,
+                     'space_occupancy_plantation_max': 12,
                  },
-                 'goods' : {},
+                 'goods' : {
+                     'corn': 0,
+                     'indigo': 0,
+                     'sugar': 0,
+                     'tobacco': 0,
+                     'coffee' : 0
+                 },
                 },
                 {
                     'name':'c',
@@ -199,9 +219,19 @@ class TestGame(ut.TestCase):
                     'unemployed_colonists': 0,
                     'board': {
                         'city_spaces' : [],
-                        'island_spaces' : [('corn', 0)],
+                        'island_spaces' : [('corn', {'capacity': 1, 'occupancy': 0})],
+                        'space_occupancy_city': 0,
+                        'space_occupancy_city_max': 12,
+                        'space_occupancy_plantation': 1,
+                        'space_occupancy_plantation_max': 12,
                     },
-                    'goods' : {},
+                    'goods' : {
+                        'corn': 0,
+                        'indigo': 0,
+                        'sugar': 0,
+                        'tobacco': 0,
+                        'coffee' : 0
+                 },
                 }
             ],
             'colonist': {
@@ -260,7 +290,8 @@ class TestGame(ut.TestCase):
         out = game.get_total_state()
         tiles_test = out.pop('tiles')
         tiles_ref = ref.pop('tiles')
-        self.assertDictEqual(out,ref)
+        # import pdb; pdb.set_trace()
+        self.assertDictEqual(out, ref)
 
         self.assertEqual(tiles_test['plantations'], tiles_ref['plantations'])
         self.assertEqual(tiles_test['quarries'], tiles_ref['quarries'])

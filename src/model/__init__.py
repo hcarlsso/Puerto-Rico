@@ -11,7 +11,7 @@ from . import Plantations as plant_types
 from . import Buildings as building_types
 from . import Goods as good_types
 
-
+ALL_GOODS = ['coffee', 'corn', 'indigo', 'sugar', 'tobacco']
 
 class Setup:
     '''
@@ -68,7 +68,7 @@ class Game:
         state['tiles'] = self.tiles_portal.get_state()
         state['remaining_victory_points'] = len(self.victory_points)
         state['available_goods'] = {
-            str(k) : len(v) for (k,v) in self.available_goods.items()
+            g: len(gc) for (g, gc) in self.available_goods.items()
         }
         state['available_buildings'] = dict(
             Counter([str(p) for p in self.available_buildings])
@@ -222,9 +222,9 @@ class Player:
             unemployed_colonists=len(self.unemployed_colonists),
             is_governor=self.is_governor,
             have_played_role=self.have_played_role,
-            goods=dict(
-                Counter([str(g) for g in self.goods])
-            )
+            goods={
+                g : sum([1 for gg in self.goods if gg == g]) for g in ALL_GOODS
+            }
         )
 
     def recieve_city_tile(self, building):
@@ -362,7 +362,8 @@ class Board:
     def __init__(self):
         self.island_spaces = []
         self.city_spaces = []
-        self.max_space = 12
+        self.max_space_city = 12
+        self.max_space_plantations = 12
 
     def get_state(self):
 
@@ -374,7 +375,11 @@ class Board:
             city_spaces=[
                 (str(p), p.get_state())
                 for p in self.city_spaces
-            ]
+            ],
+            space_occupancy_plantation=self.get_occupied_space_plantations(),
+            space_occupancy_city=self.get_occupied_space_city(),
+            space_occupancy_plantation_max=self.max_space_plantations,
+            space_occupancy_city_max=self.max_space_city
         )
     def get_occupied_spaces(self):
         occupied_spaces = []
@@ -444,8 +449,14 @@ class Board:
         else:
             raise ValueError('Not enough space')
 
+    def get_occupied_space_city(self):
+        return sum([t.space for t in self.city_spaces])
+    def get_occupied_space_plantations(self):
+        return sum([t.space for t in self.island_spaces])
     def get_available_city_space(self):
-        return self.max_space - sum([t.space for t in self.city_spaces])
+        return self.max_space_city - self.get_occupied_space_city()
+    def get_available_plantation_space(self):
+        return self.max_space_plantations - self.get_occupied_space_plantations()
 
     def is_city_full(self):
         # Assume never below zero
@@ -471,9 +482,15 @@ class CargoShip:
         return len(self.cargo) == self.n_cargo_max
 
     def load(self, goods):
-        self.cargo.extend(goods)
         if len(self.cargo) > self.n_cargo_max:
             raise ValueError('Too Much')
+
+        # not same type
+        if self.cargo and self.cargo[0] != goods[0]:
+            raise ValueError('Not the same type')
+
+        self.cargo.extend(goods)
+
     def flush_ship(self):
         self.cargo = []
     def get_state(self):

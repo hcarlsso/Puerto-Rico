@@ -23,8 +23,29 @@ MAPPING_BUILDINGS = {
     'sugar_mill' : 'Sugar Mill',
     'tobacco_storage' : 'Tobacco Storage',
     'university' : 'University',
-    'wharf' : 'Wharf'
+    'wharf' : 'Wharf',
+    'indigo' : 'Indigo',
+    'sugar' : 'Sugar',
+    'corn' : 'Corn',
+    'coffee' : 'Coffee',
+    'tobacco' : 'Tobacco'
 }
+LAYOUT_BUILDINGS = [
+    ['small_indigo_plant', 'indigo_plant', 'tobacco_storage','guild_hall'],
+    ['small_sugar_mill', 'sugar_mill', 'coffee_roaster', 'residence'],
+    ['small_market', 'hospice', 'factory', 'fortress'],
+    ['hacienda', 'office', 'university','customs_house'],
+    ['construction_hut', 'large_market', 'harbor', 'city_hall'],
+    ['small_warehouse','large_warehouse', 'wharf']
+]
+MAPPING_GOODS = {
+    'indigo' : 'Indigo',
+    'sugar' : 'Sugar',
+    'corn' : 'Corn',
+    'coffee' : 'Coffee',
+    'tobacco' : 'Tobacco'
+}
+
 
 class Player:
 
@@ -107,7 +128,7 @@ class Setup:
 class Game:
 
     def __init__(self):
-        self.prefix = "\t"
+        self.prefix = "  "
 
     def view_state(self, state):
         '''
@@ -122,7 +143,22 @@ class Game:
 
         print("Available victory points: " + str(state['remaining_victory_points']))
         self.view_goods(state['available_goods'])
+        self.view_cargo_ships(state['cargo_ships'])
         self.view_buildings(state['available_buildings'])
+
+    def view_cargo_ships(self, state, tabs=0):
+        prefix_0 = self.prefix * tabs
+        print(prefix_0 + "Cargo ships:")
+
+        prefix_1 = self.prefix * (tabs + 1)
+        info_str = ' '.join(
+            ['Size {0}: {1} {2}'.format(
+                size,
+                len(state[size]),
+                state[size][0] if state[size] else ' '
+            ) for size in sorted(state.keys())]
+        )
+        print(prefix_1 + info_str)
 
     def view_player(self, player, tabs=0):
 
@@ -139,26 +175,47 @@ class Game:
         )
         board = player['board']
 
-        print(prefix + 'Buildings:')
+        # Buildings
+        print(
+            prefix + 'Buildings {0}/{1}:'.format(
+                board['space_occupancy_city'],
+                board['space_occupancy_city_max']
+            )
+        )
         prefix_2 = self.prefix * (tabs + 2)
 
         for (building, state) in board['city_spaces']:
 
             print(
-                prefix_2 + '{0:>25}, {1}/{2}'.format(
+                prefix_2 + '{0:>17}, {1}/{2}'.format(
                     MAPPING_BUILDINGS[str(building)],
-                    state['occupation'],
+                    state['occupancy'],
                     state['capacity']
                 )
             )
 
-        print(prefix + 'Tiles:')
+        # Plantations
+        print(
+            prefix + 'Plantations {0}/{1}:'.format(
+                board['space_occupancy_plantation'],
+                board['space_occupancy_plantation_max']
+            )
+        )
         for (building, state) in board['island_spaces']:
-            if state == 1:
-                string = 'Occupied'
-            else:
-                string = 'Unoccupied'
-            print(prefix_2 + building + self.prefix + string)
+            print(
+                prefix_2 + '{0:>8}, {1}/{2}'.format(
+                    MAPPING_BUILDINGS[str(building)],
+                    state['occupancy'],
+                    state['capacity']
+                )
+            )
+        # Goods
+        print(prefix + 'Goods:')
+        good_str = ' '.join(
+            ['{0}: {1}, '.format(MAPPING_GOODS[str(good)], good_count)
+             for (good, good_count) in player['goods'].items()]
+        )
+        print(prefix_2 + good_str)
 
     def view_colonist_supply(self, colonist_state, tabs=0):
         """
@@ -167,8 +224,12 @@ class Game:
 
         print("Colonist info:")
         prefix_0 = self.prefix * (tabs + 1)
-        print(prefix_0 + "Colonist on ship: " + str(colonist_state['ship']))
-        print(prefix_0 + "Colonist supply: " + str(colonist_state['supply']))
+        print(
+            prefix_0 + "Colonist on ship: {0}, Colonist supply: {1}".format(
+                colonist_state['ship'],
+                colonist_state['supply']
+            )
+        )
 
     def view_plantations(self, state, tabs=0):
 
@@ -183,7 +244,7 @@ class Game:
         )
 
         print(prefix_0 + "Available plantations: "  + ' '.join(
-                ["{0:>4}".format(p) for p in state['on_display']]
+                ["{0:>4}".format(MAPPING_BUILDINGS[p]) for p in state['on_display']]
             )
         )
 
@@ -193,8 +254,11 @@ class Game:
 
         print("Available goods:")
         prefix_0 = self.prefix * (tabs + 1)
-        for good in goods:
-            print(prefix_0 + good + ": " + str(state[good]))
+        good_str = ' '.join(
+            ['{0}: {1},'.format(MAPPING_GOODS[str(good)], state[good])
+             for good in goods]
+        )
+        print(prefix_0 + good_str)
 
     def view_buildings(self, state, tabs=0):
         print("Available buildings:")
@@ -202,5 +266,10 @@ class Game:
 
         prefix_0 = self.prefix * (tabs + 1)
 
-        for key in sorted(state.keys()):
-            print(prefix_0 + MAPPING_BUILDINGS[key] + ": " + str(state[key]))
+        for row_items in LAYOUT_BUILDINGS:
+            print(
+                prefix_0 + ''.join(['{0:>18}: {1}'.format(
+                    MAPPING_BUILDINGS[key],
+                    state[key]
+                ) for key in row_items])
+            )
