@@ -72,6 +72,8 @@ class IslandTile:
     def occupy(self, colonist):
         self.filled = colonist
 
+    def is_occupied(self):
+        return self.filled is not None
     def get_state(self):
         if self.filled is None:
             return 0

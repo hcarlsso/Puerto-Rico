@@ -198,6 +198,17 @@ class Player:
         self.view = view
         self.controller = controller
 
+    def remove_doubloons(self, n_doubloons):
+        if n_doubloons > self.doubloons:
+            raise ValueError('Not Enough')
+        else:
+            self.doubloons -= n_doubloons
+    def get_doubloons(self):
+        return self.doubloons
+
+    def get_number_of_active_quarries(self):
+        return self.board.get_number_of_active_quarries()
+
     def add_goods(self, goods):
         self.goods.extend(goods)
 
@@ -215,6 +226,9 @@ class Player:
                 Counter([str(g) for g in self.goods])
             )
         )
+
+    def recieve_city_tile(self, building):
+        self.board.set_city_tile(building)
 
     def recieve_island_tile(self, tile):
         self.board.set_island_tile(tile)
@@ -308,8 +322,12 @@ class Player:
     def get_empty_city_spaces(self):
         '''
         Return number of empty city spaces
+
+        Considering  colonists
         '''
-        return 0
+        return sum([
+            p.get_number_of_non_occupied_spaces() for p in self.city_spaces
+        ])
     def wants_colonist_from_supply(self):
         '''
         Display and ask questions
@@ -317,6 +335,24 @@ class Player:
         self.view.display_question_colonist_from_supply(self.name)
         return self.controller.get_true_or_false()
 
+    def get_available_city_space(self):
+        '''
+        City space
+        '''
+        return self.board.get_available_city_space()
+
+    def choose_building(self, buildings_w_price):
+        '''
+        Assume buildings are not empty
+        '''
+        self.view.show_buildings(self.name, buildings_w_price)
+        index = self.controller.select_index() + 1
+        if index == 0:
+            chosen_building = (None, None)
+
+        else:
+            chosen_building = buildings_w_price[index-1]
+        return chosen_building
 
 class Board:
     '''
@@ -401,20 +437,23 @@ class Board:
 
     def set_city_tile(self, tile):
         # Default 12 space
-        available_space = self.get_available_space()
+        available_space = self.get_available_city_space()
 
         if tile.space <= available_space:
             self.city_spaces.append(tile)
         else:
-            raise
+            raise ValueError('Not enough space')
 
-    def get_available_space(self):
+    def get_available_city_space(self):
         return self.max_space - sum([t.space for t in self.city_spaces])
 
     def is_city_full(self):
         # Assume never below zero
-        return self.get_available_space() == 0
+        return self.get_available_city_space() == 0
 
+    def get_number_of_active_quarries(self):
+        return sum([1 for p in self.island_spaces
+                    if str(p) == 'quarry' and p.is_occupied()])
 class VictoryPoint:
     def __init__(self):
         pass

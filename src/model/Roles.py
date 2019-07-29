@@ -62,9 +62,44 @@ class Settler(AbstractRole):
 
 class Builder(AbstractRole):
     def play(self, player, game, privilege=False):
-        super().get_stored_doubloons(player)
-        # Get reduction in price
-        pass
+        price_reduction = 0
+        if privilege:
+            # Get reduction in price
+            super().get_stored_doubloons(player)
+            price_reduction += 1
+
+        # Filter the buildings that can be bought
+        buildings = game.available_buildings
+        n_player_quarries = player.get_number_of_active_quarries()
+        n_doubloons = player.get_doubloons()
+
+        buildings_with_space = [
+            b for b in buildings if
+            b.space <= player.get_available_city_space()
+        ]
+
+        buildings_with_reduction = []
+        for b in buildings_with_space:
+            price = b.cost_with_quarries(n_player_quarries) - price_reduction
+            if n_doubloons >= price:
+                buildings_with_reduction.append(
+                    (str(b), price)
+                )
+
+        # any options
+        if buildings_with_reduction:
+
+            # Only take unique buildings
+            (chosen_building, price) = player.choose_building(
+                list(set(buildings_with_reduction))
+            )
+            if chosen_building is not None:
+                i_chosen = game.available_buildings.index(chosen_building)
+                building_to_add = game.available_buildings.pop(i_chosen)
+                player.recieve_city_tile(building_to_add)
+
+                # Take the money
+                player.remove_doubloons(price)
     def __str__(self):
         return 'builder'
 

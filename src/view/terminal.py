@@ -1,5 +1,31 @@
 # coding: utf-8
 
+MAPPING_BUILDINGS = {
+    'city_hall' : 'City Hall',
+    'coffee_roaster' : 'Coffee Roaster',
+    'construction_hut' : 'Construction Hut',
+    'customs_house' : 'Customs House',
+    'factory':'Factory',
+    'fortress' :'Fortress',
+    'guild_hall' : 'Guild Hall',
+    'hacienda' : 'Hacienda',
+    'harbor' : 'Harbor',
+    'hospice' : 'Hospice',
+    'indigo_plant' :'Indigo Plant',
+    'large_market':'Large Market',
+    'large_warehouse' :'Large Warehouse',
+    'office' : 'Office',
+    'residence' : 'Residence',
+    'small_indigo_plant' : 'Small Indigo Plant',
+    'small_market' : 'Small Market',
+    'small_sugar_mill' : 'Small Sugar Mill',
+    'small_warehouse' : 'Small Warehouse',
+    'sugar_mill' : 'Sugar Mill',
+    'tobacco_storage' : 'Tobacco Storage',
+    'university' : 'University',
+    'wharf' : 'Wharf'
+}
+
 class Player:
 
     def __init__(self):
@@ -53,6 +79,23 @@ class Player:
         )
         for (i, space) in enumerate(empty_spaces):
             print('Index {0}: '.format(i+1) + str(space))
+
+    def show_buildings(self, name, buildings_w_price):
+        print(
+            'Player {0} choose index for building:'.format(
+                name
+            )
+        )
+        print('Index {0:>2}:{1:>25}'.format(0, 'Buy no building'))
+        for (i, (building, price)) in enumerate(buildings_w_price):
+            print(
+                'Index {0:>2}:{1:>25}{2:>3} doubloons'.format(
+                    i+1,
+                    MAPPING_BUILDINGS[building],
+                    price
+                )
+            )
+
 class Setup:
     '''
     Should contain more
@@ -96,7 +139,14 @@ class Game:
         prefix_2 = self.prefix * (tabs + 2)
 
         for (building, state) in board['city_spaces']:
-            print(prefix_2 + building)
+
+            print(
+                prefix_2 + '{0:>25}, {1}/{2}'.format(
+                    MAPPING_BUILDINGS[str(building)],
+                    state['occupation'],
+                    state['capacity']
+                )
+            )
 
         print(prefix + 'Tiles:')
         for (building, state) in board['island_spaces']:
@@ -136,32 +186,8 @@ class Game:
     def view_buildings(self, state, tabs=0):
         print("Available buildings:")
 
-        mapping = {
-            'city_hall' : 'City Hall',
-            'coffee_roaster' : 'Coffee Roaster',
-            'construction_hut' : 'Construction Hut',
-            'customs_house' : 'Customs House',
-            'factory':'Factory',
-            'fortress' :'Fortress',
-            'guild_hall' : 'Guild Hall',
-            'hacienda' : 'Hacienda',
-            'harbor' : 'Harbor',
-            'hospice' : 'Hospice',
-            'indigo_plant' :'Indigo Plant',
-            'large_market':'Large Market',
-            'large_warehouse' :'Large Warehouse',
-            'office' : 'Office',
-            'residence' : 'Residence',
-            'small_indigo_plant' : 'Small Indigo Plant',
-            'small_market' : 'Small Market',
-            'small_sugar_mill' : 'Small Sugar Mill',
-            'small_warehouse' : 'Small Warehouse',
-            'sugar_mill' : 'Sugar Mill',
-            'tobacco_storage' : 'Tobacco Storage',
-            'university' : 'University',
-            'wharf' : 'Wharf'
-        }
+
         prefix_0 = self.prefix * (tabs + 1)
 
-        for key in sorted(mapping.keys()):
-            print(prefix_0 + mapping[key] + ": " + str(state[key]))
+        for key in sorted(state.keys()):
+            print(prefix_0 + MAPPING_BUILDINGS[key] + ": " + str(state[key]))
