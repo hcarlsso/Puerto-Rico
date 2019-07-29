@@ -1,4 +1,5 @@
 import random
+from . import Buildings
 
 class Portal:
     '''
@@ -62,44 +63,13 @@ class Portal:
             'on_display' : sorted([str(p) for p in self.on_display])
         }
 
-class IslandTile:
+class IslandTile(Buildings.AbstractBuilding):
 
     def __init__(self):
-        self.filled = None
-
-    def add_colonist(self, colonist):
-        self.occupy(colonist)
-    def occupy(self, colonist):
-        self.filled = colonist
-
-    def is_occupied(self):
-        return self.filled is not None
-    def get_state(self):
-        if self.filled is None:
-            return 0
-        else:
-            return 1
-
-    def take_colonist(self):
-        '''
-        Return the colonist and empty the place
-        '''
-        temp = self.filled
-        self.filled = None
-        return temp
-    def get_number_of_colonists(self):
-        return self.get_state()
-
-    def __eq__(self, other):
-
-        if type(self) == type(other):
-            return True
-        else:
-            return False
-
+        super().__init__(1, 1)
 class Quarry(IslandTile):
     def __init__(self):
-        pass
+        super().__init__()
     def __str__(self):
         return 'quarry'
 class Coffee(IslandTile):
