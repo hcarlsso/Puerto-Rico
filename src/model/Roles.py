@@ -45,18 +45,24 @@ class Prospector(AbstractRole):
         return 'prospector'
 
 class Settler(AbstractRole):
-    def play(self, player, game, privilege=False):
-        if privilege:
-            super().get_stored_doubloons(player)
-            # Can take quarry instead
-            quarry_option=True
-        else:
-            quarry_option=False
+    def need_all_players(self):
+        return True
+    def play_with_all_players(self, players, game):
+        for (i, player) in enumerate(players):
+            if i == 0:
+                super().get_stored_doubloons(player)
+                quarry_option = True
+            else:
+                quarry_option = False
 
-        game.tiles_portal.play_selection(
-            player,
-            quarry_option=quarry_option
-        )
+            game.tiles_portal.play_selection(
+                player,
+                quarry_option=quarry_option
+            )
+
+        # Refill
+        game.tiles_portal.fill_display()
+
     def __str__(self):
         return 'settler'
 

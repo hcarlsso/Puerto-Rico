@@ -11,11 +11,15 @@ class Portal:
         self.quarries = quarries
         self.plantations = plantations
         self.on_display = []
+        self.discarded = []
 
     def fill_display(self):
         '''
         Randomly select plantations  for display.
         '''
+        # Save the old ones
+        self.discarded.extend(self.on_display)
+
         # Select items
         n_plantations = len(self.plantations)
 
