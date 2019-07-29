@@ -128,11 +128,15 @@ class Game:
 
         prefix_0 = self.prefix * tabs
         print(prefix_0 + "Player: " + player['name'])
-        prefix = self.prefix * (tabs + 1)
 
-        print(prefix + 'Doubloons: ' + str(player['doubloons']))
-        print(prefix + 'Victory Points: ' + str(player['victory_points']))
-        print(prefix + 'Unemployed colonists: ' + str(player['unemployed_colonists']))
+        prefix = self.prefix * (tabs + 1)
+        print(
+            prefix + 'Doubloons:{0:>2},\tVictory Points:{1:>2},\tUnemployed colonists:{2:>2}'.format(
+                player['doubloons'],
+                player['victory_points'],
+                player['unemployed_colonists']
+            )
+        )
         board = player['board']
 
         print(prefix + 'Buildings:')
@@ -170,9 +174,18 @@ class Game:
 
         print("Plantation info:")
         prefix_0 = self.prefix * (tabs + 1)
-        print(prefix_0 + "Plantations left: " + str(state['plantations']))
-        print(prefix_0 + "Quarries left: " + str(state['quarries']))
-        print(prefix_0 + "Available plantations: " + str(state['on_display']))
+        print(
+            prefix_0 + "Plantations left:{0:>8}, Quarries left:{1:>8},".format(
+                state['plantations'],
+                state['quarries'],
+                state['on_display']
+            )
+        )
+
+        print(prefix_0 + "Available plantations: "  + ' '.join(
+                ["{0:>4}".format(p) for p in state['on_display']]
+            )
+        )
 
 
     def view_goods(self, state, tabs=0):
