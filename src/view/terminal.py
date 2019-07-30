@@ -28,7 +28,8 @@ MAPPING_BUILDINGS = {
     'sugar' : 'Sugar',
     'corn' : 'Corn',
     'coffee' : 'Coffee',
-    'tobacco' : 'Tobacco'
+    'tobacco' : 'Tobacco',
+    'quarry' : 'Quarry'
 }
 LAYOUT_BUILDINGS = [
     ['small_indigo_plant', 'indigo_plant', 'tobacco_storage','guild_hall'],
@@ -116,6 +117,20 @@ class Player:
                     price
                 )
             )
+    def placed_colonist_on_building(self, name, b_name):
+        print(
+            'Player {0} placed colonist on {1}'.format(
+                name,
+                b_name
+            )
+        )
+    def place_colonists_on_san_juan(self, name, n_colonists):
+        print(
+            'Player {0} placed {1} colonist(s) in San Juan'.format(
+                name,
+                n_colonists
+            )
+        )
 
 class Setup:
     '''

@@ -241,7 +241,7 @@ class Player:
         Choose role and give back.
         '''
         self.view.display_options(self.name, roles_to_select)
-        index = self.controller.select_index()
+        index = self.controller.select_index(len(roles_to_select))
         chosen = roles_to_select.pop(index)
         return (chosen, roles_to_select)
 
@@ -252,12 +252,87 @@ class Player:
     def choose_plantation(self, options):
 
         self.view.display_options(self.name, options)
-        index = self.controller.select_index()
+        index = self.controller.select_index(len(options))
         chosen = options.pop(index)
         self.board.set_island_tile(chosen)
 
         # Return remaining
         return options
+
+    def unload_san_juan(self):
+        self.view.ask_unload_san_juan(
+            self.name,
+            len(self.unemployed_colonists)
+        )
+        n_colonists = self.controller.get_a_number(
+            0,
+            len(self.unemployed_colonists)
+        )
+        if n_colonists > 0:
+            colonists = [
+                self.unemployed_colonists.pop()
+                for i in range(n_colonists)
+            ]
+        else:
+            colonists = []
+        return colonists
+
+    def unload_board(self, n_colonists_board):
+        self.view.ask_unload_any_building(
+            self.name,
+            n_colonists_board
+        )
+        resp = self.controller.get_a_number(0, n_colonists_board)
+
+        occupied_spaces = self.board.get_occupied_spaces()
+
+        if resp == n_colonists_board:
+            #unload all
+            colonists_to_unload = [s.take_colonist()  for s in occupied_spaces]
+        elif resp > 0:
+            colonists_to_unload = []
+            for i in range(resp):
+                self.view.show_spaces(self.name, occupied_spaces)
+                index = self.controller.select_index(len(occupied_spaces))
+                space_to_unload = occupied_spaces.pop(index)
+                colonists_to_unload.append(
+                    space_to_unload.take_colonist()
+                )
+        else:
+            # If zero do nothing
+            colonists_to_unload = []
+
+        return colonists_to_unload
+
+    def place_colonists(self, colonists):
+
+        # Place the colonists, must place if possible
+        empty_spaces = self.board.get_empty_spaces()
+        if len(empty_spaces) <= len(colonists):
+
+            for i in range(len(colonists)):
+                empty_spaces[i].add_colonist(colonists.pop())
+                self.view.placed_colonist_on_building(
+                    self.name,
+                    str(empty_spaces[i])
+                )
+
+            # The excess to San Juan
+            if colonists:
+                self.view.place_colonists_on_san_juan(
+                    self.name,
+                    len(colonists)
+                )
+                self.unemployed_colonists.extend(colonists)
+        else:
+            # more empty buildings than colonists
+            for i in range(len(colonists)):
+                self.view.show_spaces(self.name, empty_spaces)
+                index = self.controller.select_index(len(empty_spaces))
+
+                colonist_to_load = colonists.pop()
+                building_to_load = empty_spaces.pop(index)
+                building_to_load.add_colonist(colonist_to_load)
 
     def recieve_colonists(self, colonists):
         '''
@@ -268,57 +343,15 @@ class Player:
         self.view.display_reception_colonists(self.name, len(colonists))
         # Check if colonists in San Juan should be place
         if self.unemployed_colonists:
-            self.view.ask_unload_san_juan(
-                self.name,
-                len(self.unemployed_colonists)
-            )
-            number_of_colonists_from_san_juan = self.controller.get_a_number(
-                0,
-                len(self.unemployed_colonists)
-            )
-            if number_of_colonists_from_san_juan > 0:
-                colonists.extend(
-                    [self.unemployed_colonists.pop()
-                     for i in range(number_of_colonists_from_san_juan)]
-                )
+            colonists.extend(self.unload_san_juan())
 
         # Check if any spaces should be unloaded
         n_colonists_board = self.board.get_number_of_colonists()
         if n_colonists_board > 0:
-            self.view.ask_unload_any_building(
-                self.name,
-                n_colonists_board
-            )
-            resp = self.controller.get_a_number(0, n_colonists_board)
-            if resp == n_colonists_board:
-                #unload all
-                occupied_spaces = self.board.get_occupied_spaces()
-                colonists.extend(
-                    [s.take_colonist()  for s in occupied_spaces]
-                )
-            elif resp > 0:
-                occupied_spaces = self.board.get_occupied_spaces()
-                for i in range(resp):
-                    self.view.show_spaces(self.name, occupied_spaces)
-                    index = self.controller.select_index()
-                    space_to_unload = occupied_spaces.pop(index)
-                    colonists.append(
-                        space_to_unload.take_colonist()
-                    )
-            # If zero do nothing
+            colonists.extend(self.unload_board(n_colonists_board))
 
-        # Place the colonists, must place if possible
-        empty_spaces = self.board.get_empty_spaces()
-        for i in range(len(empty_spaces)):
-            self.view.show_spaces(self.name, empty_spaces)
-            index = self.controller.select_index()
-            building_to_load = empty_spaces.pop(index)
-            colonist_to_load = colonists.pop()
+        self.place_colonists(colonists)
 
-            building_to_load.add_colonist(colonist_to_load)
-
-        # The excess to San Juan
-        self.unemployed_colonists.extend(colonists)
     def get_empty_city_spaces(self):
         '''
         Return number of empty city spaces
@@ -346,10 +379,9 @@ class Player:
         Assume buildings are not empty
         '''
         self.view.show_buildings(self.name, buildings_w_price)
-        index = self.controller.select_index() + 1
+        index = self.controller.select_index(len(buildings_w_price)) + 1
         if index == 0:
             chosen_building = (None, None)
-
         else:
             chosen_building = buildings_w_price[index-1]
         return chosen_building
