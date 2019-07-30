@@ -46,6 +46,15 @@ MAPPING_GOODS = {
     'coffee' : 'Coffee',
     'tobacco' : 'Tobacco'
 }
+MAPPING_ROLES = {
+    'captain' : 'Captain',
+    'trader' : 'Trader',
+    'settler' : 'Settler',
+    'prospector' : 'Prospector',
+    'builder' : 'Builder',
+    'mayor' : 'Mayor',
+    'craftsman' : 'Craftsman'
+}
 
 
 class Player:
@@ -53,14 +62,20 @@ class Player:
     def __init__(self):
         pass
 
-    def display_options(self, name, roles):
+    def display_roles(self, name, roles):
         '''
         Display options in a list
         '''
         print('Player {0} choose role:'.format(name))
 
-        for i, role in enumerate(roles):
-            print('Index {0}: '.format(i+1) + str(role))
+        for i, role in enumerate(sorted(roles.keys())):
+            print(
+                'Index {0}:{1:>11}, {2:>2} Doubloons'.format(
+                    i+1,
+                    MAPPING_ROLES[role],
+                    roles[role]
+                )
+            )
 
     def got_doubloon(self, player, doubloons):
 
@@ -145,6 +160,9 @@ class Game:
     def __init__(self):
         self.prefix = "  "
 
+    def view_governor(self, name):
+
+        print("Player {0} is governor".format(name))
     def view_state(self, state):
         '''
         View state of the total game

@@ -140,9 +140,16 @@ class Game:
         '''
 
         played_roles = []
+
+        #
+
+
         for player_index in order:
 
             self.view.view_state(self.get_total_state())
+            self.view.view_governor(
+                self.players[order[0]].name
+            )
             # Choose cards
             # And give
             (chosen, roles_left) = self.players[player_index].choose_role(
@@ -240,7 +247,10 @@ class Player:
         '''
         Choose role and give back.
         '''
-        self.view.display_options(self.name, roles_to_select)
+        self.view.display_roles(
+            self.name,
+            {str(r): r.doubloons for r in roles_to_select}
+        )
         index = self.controller.select_index(len(roles_to_select))
         chosen = roles_to_select.pop(index)
         return (chosen, roles_to_select)
