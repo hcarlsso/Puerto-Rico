@@ -66,7 +66,7 @@ class AbstractCityBuilding(AbstractBuilding):
         return cost
 
 class ProductionBuilding(AbstractCityBuilding):
-    def __init__(self, good_type, colonist_capacity, cost, vp, quarries, space=2):
+    def __init__(self, good_type, colonist_capacity, cost, vp, quarries, space=1):
         # All production buildings take two space
         self.good_type = good_type
         super().__init__(

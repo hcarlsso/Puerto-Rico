@@ -62,18 +62,48 @@ class Player:
     def __init__(self):
         pass
 
+    def display_goods_to_choose(self, name, goods_options):
+
+        print('Player {0} choose good:'.format(name))
+
+        for i, good in enumerate(goods_options):
+            print(
+                'Index {0}:{1:>8}'.format(
+                    i+1,
+                    MAPPING_GOODS[good]
+                )
+            )
+    def display_plantations_to_choose(self, name, plantation_options):
+
+        print('Player {0} choose plantation:'.format(name))
+
+        for i, plantation in enumerate(plantation_options):
+            print(
+                'Index {0}:{1:>8}'.format(
+                    i+1,
+                    MAPPING_BUILDINGS[str(plantation)]
+                )
+            )
+    def display_produced_goods(self, name, goods):
+
+        print(
+            'Player {0} produced:'.format(name) + ' '.join(
+                [str(good) for good in goods]
+            )
+        )
+
     def display_roles(self, name, roles):
         '''
         Display options in a list
         '''
         print('Player {0} choose role:'.format(name))
 
-        for i, role in enumerate(sorted(roles.keys())):
+        for i, (role, doubloons) in enumerate(roles):
             print(
                 'Index {0}:{1:>11}, {2:>2} Doubloons'.format(
                     i+1,
                     MAPPING_ROLES[role],
-                    roles[role]
+                    doubloons
                 )
             )
 
@@ -303,6 +333,6 @@ class Game:
             print(
                 prefix_0 + ''.join(['{0:>18}: {1}'.format(
                     MAPPING_BUILDINGS[key],
-                    state[key]
+                    state[key] if key in state else 0
                 ) for key in row_items])
             )

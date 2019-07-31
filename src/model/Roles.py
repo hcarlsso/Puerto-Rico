@@ -1,3 +1,5 @@
+from . import definitions
+
 class AbstractRole:
     def __init__(self):
         self.doubloons = 0
@@ -140,9 +142,37 @@ class Mayor(AbstractRole):
         return 'mayor'
 
 class Craftsman(AbstractRole):
-    def play(self, player, game, privilege=False):
-        super().get_stored_doubloons(player)
-        # Additional good from supply
-        pass
+    def need_all_players(self):
+        return True
+    def play_with_all_players(self, players, game):
+
+        for (i, player) in enumerate(players):
+            if i == 0:
+                super().get_stored_doubloons(player)
+            player_capacity = player.get_production_capacity()
+
+            for good in definitions.ALL_GOODS:
+                n_goods_produced = min(
+                    player_capacity[good],
+                    len(game.available_goods[good])
+                )
+
+                produced_goods = [
+                    game.available_goods[good].pop()
+                    for j in range(n_goods_produced)
+                ]
+                player.recieve_goods(produced_goods)
+
+        # Additional single good from supply
+        player_capacity = players[0].get_production_capacity()
+        good_options = [
+            good for good in definitions.ALL_GOODS if
+            min(player_capacity[good], len(game.available_goods[good])) > 0
+        ]
+        if good_options:
+            good_type = players[0].choose_good(good_options)
+            good = game.available_goods.remove(good_type)
+            players[0].recieve_goods([good])
+
     def __str__(self):
         return 'craftsman'

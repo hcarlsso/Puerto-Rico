@@ -10,8 +10,7 @@ from . import Roles as role_types
 from . import Plantations as plant_types
 from . import Buildings as building_types
 from . import Goods as good_types
-
-ALL_GOODS = ['coffee', 'corn', 'indigo', 'sugar', 'tobacco']
+from . import definitions
 
 class Setup:
     '''
@@ -205,6 +204,18 @@ class Player:
         self.view = view
         self.controller = controller
 
+    def choose_good(self, good_options):
+        self.view.display_goods_to_choose(self.name, goods_options)
+        index = self.controller.select_index(len(goods_options))
+        return goods_options[index]
+
+    def recieve_goods(self, goods):
+        self.view.display_produced_goods(self.name, goods)
+        self.goods.extend(goods)
+
+    def get_production_capacity(self):
+        return self.board.get_production_capacity()
+
     def remove_doubloons(self, n_doubloons):
         if n_doubloons > self.doubloons:
             raise ValueError('Not Enough')
@@ -230,7 +241,8 @@ class Player:
             is_governor=self.is_governor,
             have_played_role=self.have_played_role,
             goods={
-                g : sum([1 for gg in self.goods if gg == g]) for g in ALL_GOODS
+                g : sum([1 for gg in self.goods if gg == g])
+                for g in definitions.ALL_GOODS
             }
         )
 
@@ -249,7 +261,7 @@ class Player:
         '''
         self.view.display_roles(
             self.name,
-            {str(r): r.doubloons for r in roles_to_select}
+            [(str(r), r.doubloons) for r in roles_to_select]
         )
         index = self.controller.select_index(len(roles_to_select))
         chosen = roles_to_select.pop(index)
@@ -261,7 +273,7 @@ class Player:
 
     def choose_plantation(self, options):
 
-        self.view.display_options(self.name, options)
+        self.view.display_plantations_to_choose(self.name, options)
         index = self.controller.select_index(len(options))
         chosen = options.pop(index)
         self.board.set_island_tile(chosen)
@@ -407,6 +419,37 @@ class Board:
         self.max_space_city = 12
         self.max_space_plantations = 12
 
+    def get_production_capacity(self):
+
+        production_buildings = [
+            b for b in self.city_spaces
+            if isinstance(b, building_types.ProductionBuilding)
+        ]
+        overall_capacity = {}
+        for good in definitions.ALL_GOODS:
+            plantations_good = [
+                p for p in self.island_spaces if str(p) == good
+            ]
+            plantation_good_capacity = sum(
+                [p.get_number_of_colonists() for p in plantations_good]
+            )
+
+            # Corn does not need production buildings
+            if good == 'corn':
+                overall_capacity[good] = plantation_good_capacity
+            else:
+                buildings_good = [
+                    b for b in production_buildings if b.good_type == good
+                ]
+                buildings_good_capacity = sum(
+                    [b.get_number_of_colonists() for b in buildings_good]
+                )
+                overall_capacity[good] = min(
+                    plantation_good_capacity,
+                    buildings_good_capacity
+                )
+        return overall_capacity
+
     def get_state(self):
 
         return dict(
@@ -506,7 +549,7 @@ class Board:
 
     def get_number_of_active_quarries(self):
         return sum([1 for p in self.island_spaces
-                    if str(p) == 'quarry' and p.is_occupied()])
+                    if str(p) == 'quarry' and p.get_number_of_colonists() > 0])
 class VictoryPoint:
     def __init__(self):
         pass

@@ -19,11 +19,15 @@ class TestGame(ut.TestCase):
                     'unemployed_colonists': 0,
                     'board': {
                         'city_spaces' : [
-                            ('indigo_plant', 0)
+                            ('indigo_plant', {'capacity': 3, 'occupancy': 0})
                         ],
                         'island_spaces' : [
-                            ('indigo', 0)
+                            ('indigo', {'capacity': 1, 'occupancy': 0})
                         ],
+                        'space_occupancy_city': 1,
+                        'space_occupancy_city_max': 12,
+                        'space_occupancy_plantation': 1,
+                        'space_occupancy_plantation_max': 12
                     },
                     'goods': {
                         'coffee': 1,
@@ -43,10 +47,20 @@ class TestGame(ut.TestCase):
                     'board': {
                         'city_spaces' : [],
                         'island_spaces' : [
-                            ('indigo', 0)
+                            ('indigo', {'capacity': 1, 'occupancy': 0})
                         ],
+                        'space_occupancy_city': 0,
+                        'space_occupancy_city_max': 12,
+                        'space_occupancy_plantation': 1,
+                        'space_occupancy_plantation_max': 12
                     },
-                    'goods': {},
+                    'goods': {
+                        'coffee': 0,
+                        'corn': 0,
+                        'indigo': 0,
+                        'sugar': 0,
+                        'tobacco': 0,
+                    },
                 },
                 {
                     'name':'c',
@@ -58,10 +72,20 @@ class TestGame(ut.TestCase):
                     'board': {
                         'city_spaces' : [],
                         'island_spaces' : [
-                            ('corn', 0)
+                            ('corn', {'capacity': 1, 'occupancy': 0})
                         ],
+                        'space_occupancy_city': 0,
+                        'space_occupancy_city_max': 12,
+                        'space_occupancy_plantation': 1,
+                        'space_occupancy_plantation_max': 12
                     },
-                    'goods': {},
+                    'goods': {
+                        'coffee': 0,
+                        'corn': 0,
+                        'indigo': 0,
+                        'sugar': 0,
+                        'tobacco': 0
+                    },
                 }
             ],
             'current_role' : 'trader',

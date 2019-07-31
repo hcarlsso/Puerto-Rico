@@ -391,10 +391,10 @@ def create_board(state, tiles, buildings, colonists):
             tile_to_add.occupy(next(colonists))
         board.set_island_tile(tile_to_add)
 
-    for (building_type, count) in state['city_spaces']:
+    for (building_type, b_prop) in state['city_spaces']:
         building_to_add = next(buildings[building_type])
         building_to_add.add_colonists(
-            [next(colonists) for i in range(count)]
+            [next(colonists) for i in range(b_prop['occupancy'])]
         )
         board.set_city_tile(building_to_add)
     return board
