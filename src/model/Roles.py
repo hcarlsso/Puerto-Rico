@@ -161,7 +161,8 @@ class Craftsman(AbstractRole):
                     game.available_goods[good].pop()
                     for j in range(n_goods_produced)
                 ]
-                player.recieve_goods(produced_goods)
+                if produced_goods:
+                    player.recieve_goods(produced_goods)
 
         # Additional single good from supply
         player_capacity = players[0].get_production_capacity()
@@ -171,7 +172,7 @@ class Craftsman(AbstractRole):
         ]
         if good_options:
             good_type = players[0].choose_good(good_options)
-            good = game.available_goods.remove(good_type)
+            good = game.available_goods[good_type].pop()
             players[0].recieve_goods([good])
 
     def __str__(self):

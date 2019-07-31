@@ -204,12 +204,14 @@ class Player:
         self.view = view
         self.controller = controller
 
-    def choose_good(self, good_options):
+    def choose_good(self, goods_options):
         self.view.display_goods_to_choose(self.name, goods_options)
         index = self.controller.select_index(len(goods_options))
+        # import pdb; pdb.set_trace()
         return goods_options[index]
 
     def recieve_goods(self, goods):
+
         self.view.display_produced_goods(self.name, goods)
         self.goods.extend(goods)
 

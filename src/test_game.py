@@ -162,11 +162,53 @@ class TestGame(ut.TestCase):
         state_ref = utils.deep_dict_merge(state_input, state_extended)
 
         self.maxDiff = None
-        # import pdb; pdb.set_trace()
         self.assertDictEqual(state_out, state_ref)
 
-        # for k in state_out:
-        #     self.assertDictEqual(state_out[k], state_ref[k])
+
+    def test_craftsman(self):
+
+        view = f.get_view('terminal')
+
+        controller = ut.mock.MagicMock()
+        controller.select_index = ut.mock.MagicMock(return_value=0)
+
+        players = f.create_players_model(
+            ['a', 'b', 'c'], view.Player(), controller
+        )
+        game = f.prepare_game_start(players, view)
+
+        craftsman = f.create_role('craftsman')
+        players = game.players
+
+        colonists = f.create_colonists(3)
+
+        all_tiles = f.create_all_objects_of_type(
+            f.get_number_of_plantation_tiles(),
+            f.create_tile
+        )
+
+        all_buildings = f.create_all_objects_of_type(
+            f.get_number_of_buildings(),
+            f.create_building
+        )
+
+        indigo_plant = next(all_buildings['indigo_plant'])
+        indigo_plant.add_colonist(colonists.pop())
+        players[0].recieve_city_tile(indigo_plant)
+
+        indigo_tile = next(all_tiles['indigo'])
+        indigo_tile.add_colonist(colonists.pop())
+        players[0].recieve_island_tile(indigo_tile)
+
+        self.assertEqual(
+            players[0].get_state()['goods']['indigo'], 0
+        )
+        game.play_role(craftsman, players)
+
+        self.assertEqual(
+            players[0].get_state()['goods']['indigo'], 2
+        )
+
 
     def test_get_total_state(self):
 

@@ -88,7 +88,7 @@ class Player:
 
         print(
             'Player {0} produced:'.format(name) + ' '.join(
-                [str(good) for good in goods]
+                [MAPPING_GOODS[str(good)] for good in goods]
             )
         )
 
