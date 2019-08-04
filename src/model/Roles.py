@@ -20,10 +20,90 @@ class AbstractRole:
         return False
 
 class Captain(AbstractRole):
-    def play(self, player, game, privilege=False):
-        super().get_stored_doubloons(player)
-        # Get extra victory point for first kind of good shipped
-        pass
+    def need_all_players(self):
+        return True
+
+    def perform_shipping(self, player, game, possible_good_kinds,
+                         cargo_ship_capacity, player_capacity, extra_vp=0):
+
+        good_type_to_ship = player.choose_good(possible_good_kinds)
+
+        # Figure out loading options
+        loading_options = []
+        for ship in cargo_ship_capacity:
+            if good_type_to_ship in ship['kinds']:
+                # The minimum of what player have and what
+                # capacity ship have
+                loading_options.append(
+                    (good_type_to_ship,
+                     min(ship['capacity'],
+                         player_capacity[good_type_to_ship]),
+                     ship['size']
+                    )
+                            )
+        (goods_for_ship, ship_size) = player.choose_good_to_ship(
+            loading_options
+        )
+        n_vps = len(goods_for_ship)
+        n_vps += extra_vp
+        vps = game.get_victory_points(n_vps)
+        player.recieve_victory_points(vps)
+        game.load_cargo_ship(ship_size, goods_for_ship)
+
+    def play_with_all_players(self, players, game):
+
+        # Iterate until no one can ship anymore
+        j = 0
+        while True:
+            did_shipping = []
+            for (i, player) in enumerate(players):
+                if i == 0 and j == 0:
+                    super().get_stored_doubloons(player)
+
+                player_capacity = player.get_goods_capacity()
+                cargo_ship_capacity = game.get_cargo_ship_capacity()
+
+                player_kinds = set(player_capacity.keys())
+                possible_good_kinds = [
+                    list(ship['kinds'] & player_kinds)
+                    for ship in cargo_ship_capacity
+                ]
+
+                # Flatten list and remove duplicate elements
+                possible_good_kinds = list({
+                    item for sublist in possible_good_kinds for item in sublist
+                })
+
+                if possible_good_kinds:
+                    if i == 0 and j == 0:
+                        # Get only extra victory point for first shipment
+                        # and privilege
+                        n_vps_extra = 1
+                    else:
+                        n_vps_extra = 0
+
+                    self.perform_shipping(
+                        player, game, possible_good_kinds,
+                        cargo_ship_capacity, player_capacity,
+                        extra_vp=n_vps_extra
+                    )
+
+                    did_shipping.append(True)
+                else:
+                    did_shipping.append(False)
+
+            if all([action is False for action in did_shipping]):
+                break
+            j += 1
+
+        # Empty ships
+        game.empty_cargo_ships()
+
+        # Empty remaining goods at players
+        for player in players:
+            goods = player.empty_goods()
+            game.recieve_goods(goods)
+
     def __str__(self):
         return 'captain'
 

@@ -82,6 +82,64 @@ class Game:
         }
         return state
 
+    def recieve_goods(self, goods):
+        for good in goods:
+            self.available_goods[str(good)].append(good)
+
+    def empty_cargo_ships(self):
+        for ship in self.cargo_ships.values():
+            if ship.is_ship_full():
+                self.available_goods[ship.get_good_kind()].extend(
+                    ship.flush_ship()
+                )
+
+    def load_cargo_ship(self, size, goods):
+        self.cargo_ships[size].load(goods)
+
+    def get_victory_points(self, number):
+        if number > len(self.victory_points):
+            diff = number - len(self.victory_points)
+            # Empty supply and create the necessary numbers
+            vps = self.victory_points + [
+                VictoryPoint() for i in range(diff)
+            ]
+            self.victory_points = []
+        else:
+            vps = [self.victory_points.pop() for i in range(number)]
+        return vps
+
+    def get_cargo_ship_capacity(self):
+        '''
+        The kinds on a boat depends on the others
+        '''
+
+        loaded_kinds = []
+        for (cap, ship) in self.cargo_ships.items():
+            if not ship.is_empty():
+                loaded_kinds.append(ship.get_good_kind())
+
+        # must be unique elements
+        if len(set(loaded_kinds)) != len(loaded_kinds):
+            raise ValueError()
+
+        total_capacity = []
+        all_kinds = set(['corn', 'indigo', 'sugar', 'tobacco', 'coffee'])
+        for (cap, ship) in self.cargo_ships.items():
+            if ship.available_capacity() > 0:
+                info = {
+                    'capacity' : ship.available_capacity(),
+                    'size' : cap
+                }
+                if ship.is_empty():
+                    # Will exclude full ships as well
+                    info['kinds'] = all_kinds - set(loaded_kinds)
+                else:
+                    info['kinds'] = set([ship.get_good_kind()])
+
+                total_capacity.append(info)
+
+        return total_capacity
+
     def get_player_orders(self, n_players):
 
         # player_order
@@ -204,6 +262,51 @@ class Player:
         self.view = view
         self.controller = controller
 
+    def empty_goods(self):
+        if len(self.goods) > 1:
+            self.view.display_barrel_to_save(self.name, self.goods)
+            index = self.controller.select_index(len(self.goods))
+            good_to_save = self.goods.pop(index)
+            goods_to_return = self.goods
+            self.goods = [good_to_save]
+        else:
+            goods_to_return = []
+        return goods_to_return
+
+    def recieve_victory_points(self, victory_points):
+        self.view.got_victory_points(self.name, len(victory_points))
+        self.victory_points.extend(victory_points)
+
+    def choose_good_to_ship(self, options):
+        '''
+        option = (type, capacity, ship size)
+
+        Select the number of goods defined in options
+        '''
+        if len(options) == 1:
+            # Only one option
+            option = options[0]
+        else:
+            self.view.display_goods_to_ship(self.name, options)
+            index = self.controller.select_index(len(options))
+            option = options[index]
+
+        good_type = option[0]
+        n_goods_to_ship = option[1]
+        ship_size = option[2]
+
+        goods_to_ship = []
+        for i in range(n_goods_to_ship):
+            j = 0
+            while True:
+                if self.goods[j] == good_type:
+                    goods_to_ship.append(self.goods.pop(j))
+                    break
+                else:
+                    j += 1
+
+        return goods_to_ship, ship_size
+
     def choose_good_to_trade(self, options):
 
         self.view.display_goods_to_choose(self.name, options, null_option=True)
@@ -215,11 +318,25 @@ class Player:
             return self.goods.pop(g_index)
 
     def get_trading_capacity(self):
+        '''
+        Returns a set
+        '''
         return {str(g) for g in self.goods}
 
+    def get_goods_capacity(self):
+        '''
+        Returns a set
+        '''
+        return Counter([str(g) for g in self.goods])
+
     def choose_good(self, goods_options):
-        self.view.display_goods_to_choose(self.name, goods_options)
-        index = self.controller.select_index(len(goods_options))
+        if len(goods_options) == 1:
+            self.view.display_goods_choosen(self.name, goods_options[0],
+                                            one_option=True)
+            index = 0
+        else:
+            self.view.display_goods_to_choose(self.name, goods_options)
+            index = self.controller.select_index(len(goods_options))
         return goods_options[index]
 
     def recieve_goods(self, goods):
@@ -592,10 +709,23 @@ class CargoShip:
 
         self.cargo.extend(goods)
 
+    def is_empty(self):
+        return len(self.cargo) == 0
+
     def flush_ship(self):
-        self.cargo = []
+        return [self.cargo.pop() for i in range(self.n_cargo_max)]
     def get_state(self):
         return [str(good) for good in self.cargo]
+
+    def get_good_kind(self):
+        '''
+        ['corn', 'indigo', 'sugar', 'tobacco', 'coffee']
+        '''
+        if self.cargo:
+            return str(self.cargo[0])
+        else:
+            # All kinds
+            raise ValueError('No kind')
 
 class TradingHouse:
     def __init__(self):

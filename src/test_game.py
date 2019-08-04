@@ -263,6 +263,58 @@ class TestGame(ut.TestCase):
             players[2].get_doubloons(), 2
         )
 
+    def test_captain(self):
+
+        view = f.get_view('terminal')
+
+        controller = ut.mock.MagicMock()
+        controller.select_index = ut.mock.MagicMock(return_value=0)
+
+        players = f.create_players_model(
+            ['a', 'b', 'c'], view.Player(), controller
+        )
+        game = f.prepare_game_start(players, view)
+
+        role = f.create_role('captain')
+        players = game.players
+
+        all_goods = f.create_all_objects_of_type(
+            f.get_number_of_goods(),
+            f.create_good
+        )
+        players[0].add_goods([next(all_goods['indigo']) for i in range(4)])
+        players[1].add_goods([next(all_goods['corn']) for i in range(4)])
+        players[2].add_goods([next(all_goods['indigo']) for i in range(4)])
+
+        for i in range(3):
+            self.assertEqual(
+                players[i].get_state()['victory_points'], 0
+            )
+        game.play_role(role, players)
+
+        self.assertEqual(
+            players[0].get_state()['goods']['indigo'], 0
+        )
+        self.assertEqual(
+            players[0].get_state()['victory_points'], 5
+        )
+        self.assertEqual(
+            players[1].get_state()['goods']['corn'], 0
+        )
+        self.assertEqual(
+            players[1].get_state()['victory_points'], 4
+        )
+
+        self.assertEqual(
+            players[2].get_state()['goods']['indigo'], 1
+        )
+
+        self.assertListEqual(
+            game.get_total_state()['cargo_ships'][4], []
+        )
+        self.assertListEqual(
+            game.get_total_state()['cargo_ships'][5], ['corn'] * 4
+        )
 
     def test_get_total_state(self):
 

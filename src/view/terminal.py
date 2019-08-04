@@ -62,6 +62,40 @@ class Player:
     def __init__(self):
         pass
 
+    def display_barrel_to_save(self, name, goods):
+        print('Player {0} choose barrel to save:'.format(name))
+
+        for i, good in enumerate(goods):
+            print(
+                'Index {0}:{1:>8}'.format(
+                    i+1,
+                    MAPPING_GOODS[str(good)],
+                )
+            )
+
+    def got_victory_points(self,name, n_vp):
+        print('Player {0} got {1} victory points'.format(name, n_vp))
+
+    def display_goods_to_ship(self, name, goods_options):
+
+        print('Player {0} choose option to ship:'.format(name))
+
+        for i, good in enumerate(goods_options):
+            print(
+                'Index {0}:{1:>8}, {2:>6} barrels, {3:>6} barrel-ship'.format(
+                    i+1,
+                    MAPPING_GOODS[good[0]],
+                    good[1],
+                    good[2]
+                )
+            )
+    def display_goods_choosen(self, name, good_chosen, one_option=False):
+
+        if one_option:
+            print('Player {0} has only one option.'.format(name))
+        print('Player {0} has chosen good type {1}.'.format(
+            name, MAPPING_GOODS[good_chosen]))
+
     def display_goods_to_choose(self, name, goods_options, null_option=False):
 
         print('Player {0} choose good:'.format(name))
@@ -152,7 +186,12 @@ class Player:
             )
         )
         for (i, space) in enumerate(empty_spaces):
-            print('Index {0}: '.format(i+1) + str(space))
+            print(
+                'Index {0}: {1:>8}'.format(
+                    i+1,
+                    MAPPING_BUILDINGS[str(space)]
+                )
+            )
 
     def show_buildings(self, name, buildings_w_price):
         print(
