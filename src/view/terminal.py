@@ -62,10 +62,17 @@ class Player:
     def __init__(self):
         pass
 
-    def display_goods_to_choose(self, name, goods_options):
+    def display_goods_to_choose(self, name, goods_options, null_option=False):
 
         print('Player {0} choose good:'.format(name))
 
+        if null_option:
+            print(
+                'Index {0}:{1:>8}'.format(
+                    0,
+                    'Skip'
+                )
+            )
         for i, good in enumerate(goods_options):
             print(
                 'Index {0}:{1:>8}'.format(

@@ -5,15 +5,17 @@ class Player:
     def __init__(self):
         pass
 
-    def select_index(self, end, start=0):
+    def select_index(self, end, null_option=False):
         '''
         Select a number
         '''
         text = 'Which index?'
         while True:
             inp = self.display_question(text)
-            if int(inp)-1 in range(start, end):
+            if int(inp)-1 in range(end):
                 return int(inp) - 1
+            if null_option and inp == 0:
+                return False
 
     def get_true_or_false(self):
         text = 'y/n?'

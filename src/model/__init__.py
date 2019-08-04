@@ -204,10 +204,22 @@ class Player:
         self.view = view
         self.controller = controller
 
+    def choose_good_to_trade(self, options):
+
+        self.view.display_goods_to_choose(self.name, options, null_option=True)
+        index = self.controller.select_index(len(options), null_option=True)
+        if index is False:
+            return False
+        else:
+            g_index = self.goods.index(options[index])
+            return self.goods.pop(g_index)
+
+    def get_trading_capacity(self):
+        return {str(g) for g in self.goods}
+
     def choose_good(self, goods_options):
         self.view.display_goods_to_choose(self.name, goods_options)
         index = self.controller.select_index(len(goods_options))
-        # import pdb; pdb.set_trace()
         return goods_options[index]
 
     def recieve_goods(self, goods):
@@ -403,8 +415,10 @@ class Player:
         Assume buildings are not empty
         '''
         self.view.show_buildings(self.name, buildings_w_price)
-        index = self.controller.select_index(len(buildings_w_price)) + 1
-        if index == 0:
+        index = self.controller.select_index(
+            len(buildings_w_price), null_option=True
+        )
+        if index is False:
             chosen_building = (None, None)
         else:
             chosen_building = buildings_w_price[index-1]
@@ -600,3 +614,16 @@ class TradingHouse:
         return len(self.spaces) == 4
     def get_state(self):
         return [str(g) for g in self.spaces]
+
+    def get_capacity(self):
+        return {str(g) for g in self.spaces}
+
+    def get_doubloons(self, good):
+        options = {
+            'corn' : 0,
+            'indigo' : 1,
+            'sugar' : 2,
+            'tobacco' : 3,
+            'coffee' : 4
+        }
+        return options[str(good)]

@@ -28,10 +28,41 @@ class Captain(AbstractRole):
         return 'captain'
 
 class Trader(AbstractRole):
-    def play(self, player, game, privilege=False):
-        super().get_stored_doubloons(player)
-        # Get extra doublon when selling
-        pass
+    def need_all_players(self):
+        return True
+    def play_with_all_players(self, players, game):
+        '''
+        Privilege is to get one extra doubloon if sold
+        '''
+        for (i, player) in enumerate(players):
+            if i == 0:
+                super().get_stored_doubloons(player)
+
+            trading_capacity = player.get_trading_capacity()
+            trading_house_capacity = game.trading_house.get_capacity()
+
+            conditions = [trading_capacity.isdisjoint(trading_house_capacity)]
+            conditions.append(not game.trading_house.is_full())
+
+            # No shared elements
+            if all(conditions):
+                options = list(trading_capacity - trading_house_capacity)
+                good = player.choose_good_to_trade(options)
+                if good:
+                    doubloons = game.trading_house.get_doubloons(good)
+                    game.trading_house.add_good(good)
+
+                    # The privilege
+                    if i == 0:
+                        doubloons += 1
+                    player.recieve_doubloons(doubloons)
+
+        # If house full, move goods to supply
+        if game.trading_house.is_full():
+            goods = game.trading_house.flush()
+            for good in goods:
+                game.available_goods[str(good)].append(good)
+
     def __str__(self):
         return 'trader'
 

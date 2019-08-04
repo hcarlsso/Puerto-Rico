@@ -209,6 +209,60 @@ class TestGame(ut.TestCase):
             players[0].get_state()['goods']['indigo'], 2
         )
 
+    def test_trader(self):
+
+        view = f.get_view('terminal')
+
+        controller = ut.mock.MagicMock()
+        controller.select_index = ut.mock.MagicMock(return_value=0)
+
+        players = f.create_players_model(
+            ['a', 'b', 'c'], view.Player(), controller
+        )
+        game = f.prepare_game_start(players, view)
+
+        trader = f.create_role('trader')
+        players = game.players
+
+        all_goods = f.create_all_objects_of_type(
+            f.get_number_of_goods(),
+            f.create_good
+        )
+        players[0].add_goods([next(all_goods['indigo'])])
+        players[1].add_goods([next(all_goods['corn'])])
+        players[2].add_goods([next(all_goods['indigo'])])
+
+        self.assertEqual(
+            players[0].get_state()['goods']['indigo'], 1
+        )
+        self.assertEqual(
+            players[1].get_state()['goods']['corn'], 1
+        )
+        self.assertEqual(
+            players[2].get_state()['goods']['indigo'], 1
+        )
+        self.assertEqual(
+            players[0].get_doubloons(), 2
+        )
+        game.play_role(trader, players)
+
+        self.assertEqual(
+            players[0].get_state()['goods']['indigo'], 0
+        )
+        self.assertEqual(
+            players[1].get_state()['goods']['corn'], 0
+        )
+        self.assertEqual(
+            players[2].get_state()['goods']['indigo'], 1
+        )
+        # Player 0 is trader
+        self.assertEqual(
+            players[0].get_doubloons(), 4
+        )
+        self.assertEqual(
+            players[2].get_doubloons(), 2
+        )
+
 
     def test_get_total_state(self):
 
